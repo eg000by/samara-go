@@ -52,3 +52,11 @@ button.link { background: none; color: #2563eb; padding: 4px; }
 .picker-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: grid; place-items: center; }
 .picker { background: #fff; padding: 18px; border-radius: 12px; width: 280px; display: flex; flex-direction: column; gap: 8px; }
 .picker h4 { margin: 0 0 4px; }
+
+/* --- статистика --- */
+.stats-wrap { display: flex; flex-direction: column; gap: 16px; }
+.stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.stat-num { font-size: 28px; font-weight: 700; color: #16a34a; }
+.chart-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; }
+.chart-box h4 { margin: 0 0 12px; }

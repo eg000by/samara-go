@@ -78,3 +78,20 @@ class HarvestResult(BaseModel):
     seed_type: str
     reward: int
     currency: int  # новый баланс
+
+
+class StatsTotals(BaseModel):
+    collect: int = 0
+    plant: int = 0
+    harvest: int = 0
+
+
+class DailyStat(BaseModel):
+    day: str  # YYYY-MM-DD
+    collect: int
+    harvest: int
+
+
+class StatsResponse(BaseModel):
+    totals: StatsTotals
+    by_day: list[DailyStat]  # последние 7 дней

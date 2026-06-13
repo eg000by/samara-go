@@ -10,6 +10,7 @@ import type {
   InventoryItem,
   LatLon,
   SeedOnMap,
+  StatsResponse,
   UserProfile,
 } from '../types';
 
@@ -73,4 +74,5 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ cell_index: cellIndex }),
     }),
+  stats: () => request<StatsResponse>('/stats'),
 };

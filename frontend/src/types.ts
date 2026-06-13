@@ -63,3 +63,20 @@ export interface LatLon {
   lat: number;
   lon: number;
 }
+
+export interface StatsTotals {
+  collect: number;
+  plant: number;
+  harvest: number;
+}
+
+export interface DailyStat {
+  day: string; // YYYY-MM-DD
+  collect: number;
+  harvest: number;
+}
+
+export interface StatsResponse {
+  totals: StatsTotals;
+  by_day: DailyStat[];
+}

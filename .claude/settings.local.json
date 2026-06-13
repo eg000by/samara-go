@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git commit -q -m ' *)",
       "Bash(git add *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(npm run *)"
     ]
   }
 }

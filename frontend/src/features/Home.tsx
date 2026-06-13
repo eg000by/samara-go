@@ -4,9 +4,10 @@ import { supabase } from '../lib/supabase';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { FieldView } from './game/FieldView';
 import { MapView } from './game/MapView';
+import { StatsView } from './game/StatsView';
 import { clearToast } from './game/gameSlice';
 
-type Tab = 'map' | 'field';
+type Tab = 'map' | 'field' | 'stats';
 
 export function Home() {
   const dispatch = useAppDispatch();
@@ -41,10 +42,15 @@ export function Home() {
         <button className={tab === 'field' ? 'active' : ''} onClick={() => setTab('field')}>
           🌾 Поле
         </button>
+        <button className={tab === 'stats' ? 'active' : ''} onClick={() => setTab('stats')}>
+          📊 Статистика
+        </button>
       </nav>
 
       <main className="content game-layout">
-        {tab === 'map' ? <MapView /> : <FieldView />}
+        {tab === 'map' && <MapView />}
+        {tab === 'field' && <FieldView />}
+        {tab === 'stats' && <StatsView />}
 
         <aside className="inventory">
           <h3>Инвентарь</h3>
