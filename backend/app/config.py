@@ -23,15 +23,16 @@ class Settings(BaseSettings):
     CENTER_LAT: float = 59.9398
     CENTER_LON: float = 30.3146
     COLLECT_RADIUS_M: int = 50        # радиус сбора семени
-    SPAWN_RADIUS_M: int = 2000        # радиус спавна вокруг центра
+    # Спавн идёт по зонам-районам (см. SPAWN_ZONES в game.py), а не по одному кругу.
     MAP_VIEW_RADIUS_M: int = 1500     # радиус видимости семян на карте
     SEED_TTL_MINUTES: int = 30        # время жизни семени на карте
     FIELD_SIZE: int = 6               # поле 6x6 -> 36 клеток
 
     # Авто-досыпка: если активных семян меньше порога — при чтении карты
     # бэкенд досыпает до целевого числа (на случай, если cron задержался).
-    MIN_ACTIVE_SEEDS: int = 12
-    REFILL_TO_SEEDS: int = 20
+    # 7 зон спавна → держим ~5 семян на зону, чтобы каждый район не пустовал.
+    MIN_ACTIVE_SEEDS: int = 21
+    REFILL_TO_SEEDS: int = 42
 
 
 settings = Settings()

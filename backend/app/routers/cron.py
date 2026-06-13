@@ -23,10 +23,10 @@ async def require_cron_secret(x_cron_secret: str | None = Header(default=None)) 
 
 @router.post("/cron/spawn", dependencies=[Depends(require_cron_secret)])
 async def spawn(
-    count: int = Query(default=15, ge=1, le=50),
+    count: int = Query(default=35, ge=1, le=80),
     session: AsyncSession = Depends(get_session),
 ) -> dict:
-    """Создать `count` случайных семян в радиусе SPAWN_RADIUS_M от центра."""
+    """Создать `count` случайных семян, разбросав их по зонам спавна (районы Питера)."""
     n = await spawn_seeds(session, count)
     await session.commit()
     return {"spawned": n}

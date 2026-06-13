@@ -13,20 +13,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
 from .events import log_event
-from .game import pick_random_seed
+from .game import pick_random_seed, pick_spawn_zone
 
 
 async def spawn_seeds(session: AsyncSession, count: int) -> int:
-    """Создать `count` случайных семян в радиусе SPAWN_RADIUS_M от центра.
+    """Создать `count` случайных семян, разбросав их по зонам спавна (районы Питера).
     Коммит делает вызывающий код. Возвращает число созданных семян."""
     if count <= 0:
         return 0
 
-    dists, azimuths, types, rarities = [], [], [], []
+    clons, clats, dists, azimuths, types, rarities = [], [], [], [], [], []
     for _ in range(count):
         sd = pick_random_seed()
-        # R·√U — равномерно по площади круга (а не сгущая к центру)
-        dists.append(settings.SPAWN_RADIUS_M * math.sqrt(random.random()))
+        z = pick_spawn_zone()           # для каждого семени — своя зона (свой центр и радиус)
+        clons.append(z.lon)
+        clats.append(z.lat)
+        # R·√U — равномерно по площади круга зоны (а не сгущая к центру)
+        dists.append(z.radius_m * math.sqrt(random.random()))
         azimuths.append(random.random() * 2 * math.pi)  # ST_Project ждёт радианы
         types.append(sd.seed_type)
         rarities.append(sd.rarity)
@@ -34,18 +37,19 @@ async def spawn_seeds(session: AsyncSession, count: int) -> int:
     rows = (await session.execute(
         text("""
             insert into seeds_on_map (geom, seed_type, rarity, expires_at)
-            select ST_Project(ST_MakePoint(:clon, :clat)::geography, d, a),
+            select ST_Project(ST_MakePoint(clon, clat)::geography, d, a),
                    st, rar,
                    now() + make_interval(mins => :ttl)
             from unnest(
+                cast(:clons as float8[]), cast(:clats as float8[]),
                 cast(:dists as float8[]), cast(:azs as float8[]),
                 cast(:types as text[]),   cast(:rars as text[])
-            ) as t(d, a, st, rar)
+            ) as t(clon, clat, d, a, st, rar)
             returning id, seed_type, ST_X(geom::geometry) as lon, ST_Y(geom::geometry) as lat
         """),
         {
-            "clon": settings.CENTER_LON, "clat": settings.CENTER_LAT,
             "ttl": settings.SEED_TTL_MINUTES,
+            "clons": clons, "clats": clats,
             "dists": dists, "azs": azimuths, "types": types, "rars": rarities,
         },
     )).mappings().all()

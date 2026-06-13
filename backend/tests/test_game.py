@@ -6,10 +6,12 @@ from datetime import datetime, timedelta, timezone
 from app.game import (
     MAX_STAGE,
     SEED_CATALOG,
+    SPAWN_ZONES,
     growth_progress,
     growth_stage,
     is_ready,
     pick_random_seed,
+    pick_spawn_zone,
 )
 
 
@@ -59,6 +61,23 @@ def test_growth_handles_naive_datetime():
     # planted_at без таймзоны не должен ронять расчёт (внутри докидывается UTC)
     naive = BASE.replace(tzinfo=None)
     assert growth_progress(naive, 60, now=_at(30)) == 0.5
+
+
+def test_spawn_zones_valid():
+    # все зоны в пределах Петербурга и с положительным радиусом
+    assert len(SPAWN_ZONES) >= 1
+    for z in SPAWN_ZONES:
+        assert 59.8 < z.lat < 60.1
+        assert 30.1 < z.lon < 30.5
+        assert z.radius_m > 0
+        assert z.weight > 0
+
+
+def test_pick_spawn_zone_covers_all_zones():
+    rng = random.Random(7)
+    seen = {pick_spawn_zone(rng).name for _ in range(5_000)}
+    # за достаточно много бросков встречается каждая зона
+    assert seen == {z.name for z in SPAWN_ZONES}
 
 
 def test_pick_random_seed_respects_weights():
