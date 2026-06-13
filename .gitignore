@@ -1,0 +1,29 @@
+# Secrets — НИКОГДА не коммитим
+.env
+.env.*
+!.env.example
+*.pem
+service_account*.json
+
+# В schema.sql вписан реальный пароль datalens_ro — держим локально.
+# В git кладём db/schema.example.sql с плейсхолдером.
+db/schema.sql
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Node / Vite
+node_modules/
+dist/
+.firebase/
+firebase-debug.log
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
