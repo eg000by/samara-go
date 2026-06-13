@@ -1,0 +1,25 @@
+name: spawn-seeds
+
+# Дёргает защищённый /cron/spawn — раскидывает новые семена по карте Питера.
+# Секрет CRON_SECRET лежит в GitHub Secrets (Settings → Secrets → Actions).
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # каждые ~15 минут
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "Сколько семян заспавнить"
+        default: "15"
+
+jobs:
+  spawn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /cron/spawn
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          COUNT: ${{ github.event.inputs.count || '15' }}
+        run: |
+          curl -fsS -m 90 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "https://piter-go-api.onrender.com/cron/spawn?count=$COUNT"

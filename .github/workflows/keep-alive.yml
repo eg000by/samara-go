@@ -1,0 +1,15 @@
+name: keep-alive
+
+# Будит Render (засыпает после 15 мин простоя) и не даёт Supabase встать на
+# паузу (7 дней простоя). Пингуем /health — он делает лёгкий SELECT 1.
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # каждые ~10 минут (UTC; GitHub может задерживать)
+  workflow_dispatch: {}        # можно запустить вручную
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ping /health
+        run: curl -fsS -m 60 https://piter-go-api.onrender.com/health
