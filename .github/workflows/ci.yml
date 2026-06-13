@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    # dummy-значения: приложение импортируется (движок ленивый, без коннекта),
+    # интеграционные тесты без ключей Supabase автоматически скипаются.
+    env:
+      DATABASE_URL: postgresql://user:pass@localhost:5432/db
+      SUPABASE_URL: http://localhost
+      CRON_SECRET: ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install deps
+        working-directory: backend
+        run: pip install -r requirements-dev.txt
+      - name: Run pytest
+        working-directory: backend
+        run: pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install deps
+        working-directory: frontend
+        run: npm ci
+      - name: Unit tests (Vitest)
+        working-directory: frontend
+        run: npm test
+      - name: Type-check + build
+        working-directory: frontend
+        run: npm run build

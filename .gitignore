@@ -27,3 +27,8 @@ firebase-debug.log
 .DS_Store
 .vscode/
 .idea/
+
+# Playwright
+playwright-report/
+test-results/
+/frontend/playwright/.cache/

@@ -1,5 +1,7 @@
 # Piter-Go 🌉🌱
 
+[![CI](https://github.com/eg000by/samara-go/actions/workflows/ci.yml/badge.svg)](https://github.com/eg000by/samara-go/actions/workflows/ci.yml)
+
 **Location-based игра-ферма по Санкт-Петербургу.** Семена спавнятся на реальной карте
 города; игрок собирает их, только находясь рядом со своей геопозицией (как в Pokémon GO),
 сажает на поле 6×6, растит и собирает урожай. Каждое действие пишется в журнал событий —
@@ -100,6 +102,23 @@ npm install
 cp .env.example .env          # впиши VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
 npm run dev                    # http://localhost:5173
 ```
+
+## 🧪 Тесты
+
+| Слой | Стек | Что покрыто |
+|---|---|---|
+| Backend | pytest | юнит-логика роста/каталога + интеграция API (полный цикл сбор→посадка→урожай, анти-чит) |
+| Frontend | Vitest + RTL | редьюсеры Redux, компонент входа |
+| E2E | Playwright | сквозной сценарий вход → посадка → урожай через UI |
+
+```bash
+cd backend  && pytest                      # backend
+cd frontend && npm test                     # unit/компоненты
+cd frontend && npm run test:e2e             # e2e (нужны env из e2e/.env.example)
+```
+
+CI (GitHub Actions) на каждый push гоняет юнит-тесты и сборку; интеграционные
+тесты, требующие ключей Supabase, в CI автоматически пропускаются.
 
 ## 📁 Структура репозитория
 

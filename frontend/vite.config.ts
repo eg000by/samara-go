@@ -9,6 +9,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test/setup.ts',
+    // только юнит/компонент-тесты из src; e2e (Playwright) сюда не попадают
+    include: ['src/**/*.test.{ts,tsx}'],
     // дефолтные env для тестов — чтобы Supabase-клиент не падал на импорте без .env
     env: {
       VITE_API_URL: 'http://localhost:8000',

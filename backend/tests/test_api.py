@@ -10,6 +10,7 @@ from conftest import needs_supabase
 CENTER = {"lat": settings.CENTER_LAT, "lon": settings.CENTER_LON}
 
 
+@needs_supabase  # /health делает SELECT 1 — нужна живая БД (в CI скипается)
 async def test_health(client):
     r = await client.get("/health")
     assert r.status_code == 200
