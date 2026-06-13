@@ -28,5 +28,10 @@ class Settings(BaseSettings):
     SEED_TTL_MINUTES: int = 30        # время жизни семени на карте
     FIELD_SIZE: int = 6               # поле 6x6 -> 36 клеток
 
+    # Авто-досыпка: если активных семян меньше порога — при чтении карты
+    # бэкенд досыпает до целевого числа (на случай, если cron задержался).
+    MIN_ACTIVE_SEEDS: int = 12
+    REFILL_TO_SEEDS: int = 20
+
 
 settings = Settings()

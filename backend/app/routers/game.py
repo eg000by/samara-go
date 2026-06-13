@@ -14,6 +14,7 @@ from ..db import get_session
 from ..events import log_event
 from ..game import SEED_CATALOG, growth_progress, growth_stage, is_ready
 from ..models import FieldCell, InventoryItem, User
+from ..spawn import active_seed_count, spawn_seeds
 from ..schemas import (
     CatalogEntry,
     CollectResult,
@@ -55,7 +56,12 @@ async def get_map(
     user: CurrentUser = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> list[SeedOnMapOut]:
-    """Активные семена в радиусе видимости вокруг игрока."""
+    """Активные семена в радиусе видимости вокруг игрока.
+    Если активных семян мало — досыпаем (самовосстановление, если cron задержал)."""
+    if (await active_seed_count(session)) < settings.MIN_ACTIVE_SEEDS:
+        await spawn_seeds(session, settings.REFILL_TO_SEEDS)
+        await session.commit()
+
     rows = (await session.execute(
         text(f"""
             select id, seed_type, rarity,
