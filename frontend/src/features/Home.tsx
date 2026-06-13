@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { supabase } from '../lib/supabase';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { FieldView } from './game/FieldView';
 import { MapView } from './game/MapView';
 import { clearToast } from './game/gameSlice';
+
+type Tab = 'map' | 'field';
 
 export function Home() {
   const dispatch = useAppDispatch();
@@ -11,6 +14,7 @@ export function Home() {
   const inventory = useAppSelector((s) => s.game.inventory);
   const toast = useAppSelector((s) => s.game.toast);
   const error = useAppSelector((s) => s.game.error);
+  const [tab, setTab] = useState<Tab>('map');
 
   // автоскрытие тостов
   useEffect(() => {
@@ -30,8 +34,17 @@ export function Home() {
         </button>
       </header>
 
+      <nav className="tabs">
+        <button className={tab === 'map' ? 'active' : ''} onClick={() => setTab('map')}>
+          🗺️ Карта
+        </button>
+        <button className={tab === 'field' ? 'active' : ''} onClick={() => setTab('field')}>
+          🌾 Поле
+        </button>
+      </nav>
+
       <main className="content game-layout">
-        <MapView />
+        {tab === 'map' ? <MapView /> : <FieldView />}
 
         <aside className="inventory">
           <h3>Инвентарь</h3>

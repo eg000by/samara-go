@@ -1,6 +1,7 @@
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import {
+  AttributionControl,
   Circle,
   CircleMarker,
   MapContainer,
@@ -78,7 +79,14 @@ export function MapView() {
         <span className="muted">клик по карте — переместиться (демо)</span>
       </div>
 
-      <MapContainer center={[pos.lat, pos.lon]} zoom={15} className="leaflet">
+      <MapContainer
+        center={[pos.lat, pos.lon]}
+        zoom={15}
+        className="leaflet"
+        attributionControl={false}
+      >
+        {/* prefix={false} убирает «Leaflet 🇺🇦» из подписи; атрибуцию OSM оставляем */}
+        <AttributionControl prefix={false} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
