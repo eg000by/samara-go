@@ -1,31 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-import { api, ApiError } from '../lib/api';
 import { supabase } from '../lib/supabase';
-import { useAppSelector } from '../store/hooks';
-import type { CatalogEntry } from '../types';
-
-const RARITY_COLOR: Record<string, string> = {
-  common: '#9ca3af',
-  uncommon: '#22c55e',
-  rare: '#3b82f6',
-  epic: '#a855f7',
-  legendary: '#f59e0b',
-};
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { MapView } from './game/MapView';
+import { clearToast } from './game/gameSlice';
 
 export function Home() {
+  const dispatch = useAppDispatch();
   const profile = useAppSelector((s) => s.auth.profile);
-  const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const inventory = useAppSelector((s) => s.game.inventory);
+  const toast = useAppSelector((s) => s.game.toast);
+  const error = useAppSelector((s) => s.game.error);
 
+  // автоскрытие тостов
   useEffect(() => {
-    api
-      .catalog()
-      .then(setCatalog)
-      .catch((e: unknown) =>
-        setError(e instanceof ApiError ? e.message : 'Не удалось загрузить каталог'),
-      );
-  }, []);
+    if (!toast && !error) return;
+    const t = setTimeout(() => dispatch(clearToast()), 2500);
+    return () => clearTimeout(t);
+  }, [toast, error, dispatch]);
 
   return (
     <div className="page">
@@ -38,25 +30,29 @@ export function Home() {
         </button>
       </header>
 
-      <main className="content">
-        <p className="muted">
-          Карта и поле появятся на следующих шагах. Пока — справочник семян:
-        </p>
-        {error && <p className="error">{error}</p>}
-        <div className="seed-grid">
-          {catalog.map((s) => (
-            <div key={s.seed_type} className="seed-card">
-              <span
-                className="rarity-dot"
-                style={{ background: RARITY_COLOR[s.rarity] ?? '#999' }}
-              />
-              <b>{s.name}</b>
-              <small className="muted">{s.rarity}</small>
-              <small>рост: {Math.round(s.grow_seconds / 60)} мин · 🪙 {s.reward}</small>
-            </div>
-          ))}
-        </div>
+      <main className="content game-layout">
+        <MapView />
+
+        <aside className="inventory">
+          <h3>Инвентарь</h3>
+          {inventory.length === 0 ? (
+            <p className="muted">Пусто — собери семена на карте</p>
+          ) : (
+            <ul className="inv-list">
+              {inventory.map((i) => (
+                <li key={i.seed_type}>
+                  <span>{i.name}</span>
+                  <b>×{i.qty}</b>
+                </li>
+              ))}
+            </ul>
+          )}
+        </aside>
       </main>
+
+      {(toast || error) && (
+        <div className={`toast ${error ? 'toast-error' : ''}`}>{error ?? toast}</div>
+      )}
     </div>
   );
 }
