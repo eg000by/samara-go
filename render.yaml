@@ -1,0 +1,25 @@
+# Render Blueprint — описание бэкенда как кода.
+# Dashboard → New → Blueprint → подключить репозиторий → Render прочитает этот файл.
+services:
+  - type: web
+    name: piter-go-api
+    runtime: python
+    plan: free
+    region: frankfurt          # ближайший к Питеру регион Render
+    rootDir: backend           # код бэкенда лежит в backend/
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health   # Render проверяет живость по нему
+    envVars:
+      # Версию Python фиксируем — как локально (если Render заупрямится, поставь 3.12.7)
+      - key: PYTHON_VERSION
+        value: 3.13.2
+      # Секреты задаём в дашборде вручную (sync: false — не хранить в файле/репо).
+      - key: DATABASE_URL       # TRANSACTION pooler (порт 6543, IPv4!)
+        sync: false
+      - key: SUPABASE_URL       # https://<ref>.supabase.co — для проверки JWT по JWKS
+        sync: false
+      - key: CRON_SECRET        # секрет для /cron/spawn
+        sync: false
+      - key: FRONTEND_ORIGIN    # домен фронтенда (пока плейсхолдер, обновим в Шаге 3)
+        sync: false
