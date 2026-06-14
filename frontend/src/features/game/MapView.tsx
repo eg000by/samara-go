@@ -15,6 +15,10 @@ const APIKEY = import.meta.env.VITE_YANDEX_MAPS_API_KEY ?? '';
 // Тип класса-макета метки (что возвращает templateLayoutFactory.createClass).
 type Layout = ReturnType<NonNullable<ReturnType<typeof useYMaps>>['templateLayoutFactory']['createClass']>;
 
+// Кликабельная зона метки семени (круг вокруг иконки). Без неё Яндекс
+// не ловит клик по кастомному iconLayout. coordinates — px относительно якоря.
+const SEED_SHAPE = { type: 'Circle', coordinates: [0, -30], radius: 26 } as ymaps.IGeometryJson;
+
 // Внутренняя часть: рендерит карту с кастомными метками (нужен ymaps API).
 function MapCanvas({
   pos,
@@ -87,7 +91,10 @@ function MapCanvas({
           <Placemark
             key={seed.id}
             geometry={[seed.lat, seed.lon]}
-            options={{ iconLayout: seedLayout(seedImage(seed.seed_type), RARITY_COLOR[seed.rarity]) }}
+            options={{
+              iconLayout: seedLayout(seedImage(seed.seed_type), RARITY_COLOR[seed.rarity]),
+              iconShape: SEED_SHAPE,
+            }}
             onClick={() => onSelect(seed.id)}
           />
         ))}
@@ -101,8 +108,6 @@ function MapCanvas({
           −
         </button>
       </div>
-
-      <div className="map-attrib">© Yandex</div>
     </>
   );
 }

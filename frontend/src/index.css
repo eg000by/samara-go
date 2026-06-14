@@ -216,11 +216,6 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 }
 .map-zoom .icon-btn:hover:not(:disabled) { filter: brightness(0.96); }
 .map-zoom .icon-btn:active:not(:disabled) { transform: scale(0.92); box-shadow: var(--shadow-sm); }
-.map-attrib {
-  position: absolute; bottom: 8px; right: 10px; z-index: 5;
-  font: var(--type-caption); font-size: 11px; color: var(--sky-700);
-  background: rgba(255, 255, 255, 0.7); padding: 2px 7px; border-radius: 999px;
-}
 .map-nokey {
   height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--space-2); text-align: center; padding: var(--space-7);
