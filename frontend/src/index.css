@@ -124,14 +124,14 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 .app-shell {
   max-width: 440px;
   margin: 0 auto;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh; /* динамическая высота: учитывает скрывающийся тулбар iOS */
   display: flex;
   flex-direction: column;
   background: var(--cream);
   box-shadow: 0 0 60px rgba(74, 54, 36, 0.10);
 }
-.app-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.app-content::-webkit-scrollbar { display: none; }
+.app-content { flex: 1; }
 .screen-pad { padding: var(--space-4); }
 .logout-btn { margin-top: var(--space-5); }
 
@@ -161,9 +161,12 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 
 /* ---- bottom nav ------------------------------------------ */
 .bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-sticky);
   flex: none;
   display: flex;
-  padding: var(--space-2) var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom));
   background: var(--paper);
   border-top: var(--border-w) solid var(--border-soft);
   box-shadow: 0 -6px 18px rgba(74, 54, 36, 0.06);
@@ -245,7 +248,11 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 .seed-thumb img { width: 70%; height: 70%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(74, 54, 36, 0.18)); }
 
 /* ---- Yandex custom marker layouts (injected into map DOM) -- */
-.ya-seed { transform: translate(-50%, -100%); animation: og-bob 2.6s ease-in-out infinite; }
+.ya-seed {
+  display: flex; flex-direction: column; align-items: center; width: 46px;
+  transform: translate(-50%, -100%); animation: og-bob 2.6s ease-in-out infinite;
+  will-change: transform;
+}
 .ya-seed-circle {
   width: 46px; height: 46px; border-radius: 50%; background: #fff;
   border: 3px solid var(--rarity-common);
@@ -349,9 +356,14 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 }
 .plot.empty:hover .plot-add { border-color: rgba(255, 236, 210, 0.85); color: rgba(255, 236, 210, 0.95); }
 .plot .crop { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 7px 6px rgba(0, 0, 0, 0.42)); opacity: 0.9; transform: translateY(3px) scale(0.96); }
-.plot .crop.ripe { width: 62px; height: 62px; opacity: 1; transform: none; animation: og-grow 3s ease-in-out infinite; }
+.plot .crop.ripe { width: 62px; height: 62px; opacity: 1; transform: none; animation: og-grow 3s ease-in-out infinite; will-change: transform; }
 .plot.ready { cursor: pointer; }
-.plot-glow { position: absolute; inset: 9px; border-radius: 12px; animation: og-glow 2.2s ease-in-out infinite; }
+.plot-glow {
+  position: absolute; inset: 9px; border-radius: 12px;
+  box-shadow: 0 0 0 7px rgba(247, 147, 30, 0.22);
+  opacity: 0; will-change: opacity;
+  animation: og-glow 2.2s ease-in-out infinite;
+}
 .plot-badge {
   position: absolute; top: 6px; right: 6px;
   background: var(--green-500); color: #fff; border: 2px solid rgba(255, 255, 255, 0.85);
@@ -367,7 +379,7 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
   font-variant-numeric: tabular-nums;
 }
 @keyframes og-grow { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-4px) rotate(1.5deg); } }
-@keyframes og-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(247, 147, 30, 0); } 50% { box-shadow: 0 0 0 7px rgba(247, 147, 30, 0.20); } }
+@keyframes og-glow { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .plot .crop.ripe { animation: none; }
   .plot-glow { animation: none; }
@@ -381,9 +393,11 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 /* ---- seed picker dialog ----------------------------------- */
 .picker-backdrop {
   position: fixed; inset: 0; z-index: var(--z-modal);
-  background: rgba(44, 32, 24, 0.45); backdrop-filter: blur(3px);
+  background: rgba(44, 32, 24, 0.5);
   display: grid; place-items: center; padding: var(--space-4);
+  animation: fade var(--dur-base) var(--ease-out);
 }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 .picker {
   background: var(--surface-card); padding: var(--space-5); border-radius: var(--radius-xl);
   width: 300px; max-width: 100%; display: flex; flex-direction: column; gap: var(--space-2);
@@ -398,7 +412,8 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 .picker .pick-row:active:not(:disabled) { transform: translateY(1px); }
 .picker .pick-row .inv-qty { margin-left: auto; color: var(--green-600); }
 
-@keyframes pop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes pop { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.picker, .toast, .map-seedcard { will-change: transform, opacity; }
 
 /* ============================================================
    Stats / Дневник

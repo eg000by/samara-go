@@ -292,7 +292,7 @@ async def expand_field(
     if side >= settings.FIELD_SIZE:
         raise HTTPException(status.HTTP_409_CONFLICT, "поле уже максимального размера")
 
-    cost = settings.FIELD_EXPAND_COST_PER_SIDE * side
+    cost = settings.FIELD_EXPAND_COST
     if prof.currency < cost:
         raise HTTPException(status.HTTP_409_CONFLICT, "не хватает монет на расширение")
 
@@ -303,5 +303,5 @@ async def expand_field(
     await session.commit()
 
     new_side = prof.field_side
-    next_cost = settings.FIELD_EXPAND_COST_PER_SIDE * new_side if new_side < settings.FIELD_SIZE else None
+    next_cost = settings.FIELD_EXPAND_COST if new_side < settings.FIELD_SIZE else None
     return ExpandResult(currency=prof.currency, field_side=new_side, expand_cost=next_cost)

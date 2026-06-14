@@ -23,7 +23,12 @@ export function Login() {
     const { error } =
       mode === 'in'
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+        : await supabase.auth.signUp({
+            email,
+            password,
+            // ссылка подтверждения почты возвращает на текущий домен, а не на localhost
+            options: { emailRedirectTo: window.location.origin },
+          });
 
     setBusy(false);
     if (error) {

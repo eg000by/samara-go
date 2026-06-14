@@ -15,10 +15,10 @@ router = APIRouter(tags=["profile"])
 
 
 def _expand_cost(side: int) -> int | None:
-    """Цена расширения грядки с текущей стороны (None если уже максимум)."""
+    """Цена расширения грядки (None если уже максимум)."""
     if side >= settings.FIELD_SIZE:
         return None
-    return settings.FIELD_EXPAND_COST_PER_SIDE * side
+    return settings.FIELD_EXPAND_COST
 
 
 @router.get("/me", response_model=UserProfile)

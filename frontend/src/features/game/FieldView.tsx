@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { ClockIcon, PlusIcon } from '../../components/icons';
+import { ClockIcon, CoinIcon, PlusIcon } from '../../components/icons';
 import { rarityStyle, seedImage } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -128,7 +128,15 @@ export function FieldView() {
           title={maxed ? 'Поле максимального размера' : !canAfford ? 'Не хватает монет' : ''}
           onClick={() => void dispatch(expandField())}
         >
-          <PlusIcon size={18} /> {maxed ? 'Максимум' : `Грядка · ${cost}`}
+          <PlusIcon size={18} />
+          {maxed ? (
+            'Максимум'
+          ) : (
+            <>
+              Грядка · {cost}
+              <CoinIcon size={16} />
+            </>
+          )}
         </button>
       </div>
       <p className="field-caption">
