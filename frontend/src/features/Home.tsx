@@ -1,26 +1,28 @@
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 
+import { Avatar } from '../components/Avatar';
+import { BookIcon, CoinIcon, FieldIcon, PinIcon } from '../components/icons';
 import { Wordmark } from '../components/Wordmark';
-import { rarityStyle, seedImage } from '../lib/seeds';
 import { supabase } from '../lib/supabase';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { FieldView } from './game/FieldView';
+import { InventoryRail } from './game/InventoryRail';
 import { MapView } from './game/MapView';
 import { StatsView } from './game/StatsView';
 import { clearToast } from './game/gameSlice';
 
-type Tab = 'map' | 'field' | 'stats';
+type Tab = 'map' | 'field' | 'diary';
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'map', label: 'Карта' },
-  { key: 'field', label: 'Поле' },
-  { key: 'stats', label: 'Дневник' },
+const NAV: { key: Tab; label: string; icon: ReactNode }[] = [
+  { key: 'map', label: 'Карта', icon: <PinIcon size={22} /> },
+  { key: 'field', label: 'Поле', icon: <FieldIcon size={22} /> },
+  { key: 'diary', label: 'Дневник', icon: <BookIcon size={22} /> },
 ];
 
 export function Home() {
   const dispatch = useAppDispatch();
   const profile = useAppSelector((s) => s.auth.profile);
-  const inventory = useAppSelector((s) => s.game.inventory);
   const toast = useAppSelector((s) => s.game.toast);
   const error = useAppSelector((s) => s.game.error);
   const [tab, setTab] = useState<Tab>('map');
@@ -33,55 +35,55 @@ export function Home() {
   }, [toast, error, dispatch]);
 
   return (
-    <div className="page">
-      <header className="topbar">
-        <Wordmark />
-        <div className="who">
-          <b>{profile?.username ?? 'Садовод'}</b>
-          <small>играет</small>
-        </div>
-        <span className="coins">🪙 {(profile?.currency ?? 0).toLocaleString('ru-RU')}</span>
-        <button className="link" onClick={() => void supabase.auth.signOut()}>
-          выйти
-        </button>
-      </header>
+    <div className="app-shell">
+      <div className="app-content">
+        <header className="app-header">
+          <div className="header-card">
+            <Wordmark markSize={30} />
+            <div className="header-right">
+              <span className="coins-pill">
+                <CoinIcon size={18} />
+                <span>{(profile?.currency ?? 0).toLocaleString('ru-RU')}</span>
+              </span>
+              <Avatar name={profile?.username ?? 'Садовод'} size={40} ring />
+            </div>
+          </div>
+        </header>
 
-      <nav className="tabs">
-        {TABS.map((t) => (
+        {tab === 'map' && (
+          <>
+            <MapView />
+            <InventoryRail />
+          </>
+        )}
+        {tab === 'field' && (
+          <div className="screen-pad">
+            <FieldView />
+          </div>
+        )}
+        {tab === 'diary' && (
+          <div className="screen-pad">
+            <StatsView />
+            <button className="soft block logout-btn" onClick={() => void supabase.auth.signOut()}>
+              Выйти
+            </button>
+          </div>
+        )}
+      </div>
+
+      <nav className="bottom-nav">
+        {NAV.map((n) => (
           <button
-            key={t.key}
-            className={tab === t.key ? 'active' : ''}
-            onClick={() => setTab(t.key)}
+            key={n.key}
+            className={`bnav-item ${tab === n.key ? 'active' : ''}`}
+            onClick={() => setTab(n.key)}
+            aria-label={n.label}
           >
-            {t.label}
+            <span className="bnav-icon">{n.icon}</span>
+            <span className="bnav-label">{n.label}</span>
           </button>
         ))}
       </nav>
-
-      <main className="game-layout">
-        {tab === 'map' && <MapView />}
-        {tab === 'field' && <FieldView />}
-        {tab === 'stats' && <StatsView />}
-
-        <aside className="inventory">
-          <h3>Инвентарь</h3>
-          {inventory.length === 0 ? (
-            <p className="muted">Пусто — собери семена на карте 🌱</p>
-          ) : (
-            <ul className="inv-list">
-              {inventory.map((i) => (
-                <li key={i.seed_type}>
-                  <span className="seed-thumb" style={rarityStyle(i.rarity)}>
-                    <img src={seedImage(i.seed_type)} alt="" />
-                  </span>
-                  <span className="inv-name">{i.name}</span>
-                  <span className="inv-qty">×{i.qty}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </aside>
-      </main>
 
       {(toast || error) && (
         <div className={`toast ${error ? 'toast-error' : ''}`}>{error ?? toast}</div>
