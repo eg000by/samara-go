@@ -40,12 +40,17 @@ function MapCanvas({
     mapRef.current?.setCenter([pos.lat, pos.lon]);
   }, [pos]);
 
-  // макет метки игрока: зелёная точка + пульсирующее кольцо
+  // макет метки игрока: 3D-персонаж (result.glb) над пульсирующим кольцом-тенью.
+  // <model-viewer> грузит модель один раз; pointer-events off — клики уходят в карту.
   function playerLayout(): Layout | undefined {
     if (!ymapsApi) return undefined;
     if (!layoutCache.current.player) {
       layoutCache.current.player = ymapsApi.templateLayoutFactory.createClass(
-        '<div class="ya-player"><span class="ya-player-halo"></span><span class="ya-player-dot"></span></div>',
+        '<div class="ya-player3d"><span class="ya-player-halo"></span>' +
+          '<model-viewer src="/result.glb" alt="персонаж" ' +
+          'auto-rotate rotation-per-second="26deg" interaction-prompt="none" ' +
+          'camera-orbit="0deg 82deg auto" disable-zoom loading="eager" reveal="auto" ' +
+          'shadow-intensity="0.9" shadow-softness="1" exposure="1.1"></model-viewer></div>',
       );
     }
     return layoutCache.current.player;

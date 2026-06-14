@@ -383,6 +383,21 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
   background: rgba(62, 155, 79, 0.18); transform: translate(-50%, -50%);
   animation: og-pulse 2.8s ease-out infinite;
 }
+/* 3D-метка игрока: «ноги» персонажа стоят на гео-точке (translate -50%,-100%) */
+.ya-player3d {
+  position: relative; width: 84px; height: 104px;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+.ya-player3d model-viewer {
+  position: absolute; inset: 0; width: 84px; height: 104px;
+  --poster-color: transparent; background: transparent;
+  pointer-events: none;
+}
+/* кольцо-«ты здесь» под персонажем (на уровне гео-точки) */
+.ya-player3d .ya-player-halo {
+  top: auto; bottom: 4px; width: 56px; height: 56px;
+}
 @keyframes og-bob {
   0%, 100% { transform: translate(-50%, -100%) translateY(0); }
   50% { transform: translate(-50%, -100%) translateY(-5px); }
