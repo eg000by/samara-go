@@ -21,8 +21,10 @@ async def me(
 ) -> UserProfile:
     profile = await session.get(User, user.id)
     if profile is None:
-        # подстраховка: обычно профиль создаёт триггер on_auth_user_created
-        profile = User(id=user.id, username=(user.email or "").split("@")[0] or None)
+        # подстраховка: обычно профиль создаёт триггер on_auth_user_created.
+        # никнейм из регистрации (user_metadata), иначе — часть e-mail до @
+        username = user.username or (user.email or "").split("@")[0] or None
+        profile = User(id=user.id, username=username)
         session.add(profile)
 
     await log_event(session, "login", user_id=user.id)

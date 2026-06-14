@@ -33,6 +33,7 @@ _bearer = HTTPBearer(auto_error=True)
 class CurrentUser:
     id: UUID
     email: str | None
+    username: str | None = None
 
 
 def _decode(token: str) -> dict:
@@ -59,4 +60,11 @@ async def get_current_user(
             detail="invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
-    return CurrentUser(id=UUID(payload["sub"]), email=payload.get("email"))
+    # никнейм с экрана регистрации приезжает в user_metadata
+    meta = payload.get("user_metadata") or {}
+    username = meta.get("username") or None
+    return CurrentUser(
+        id=UUID(payload["sub"]),
+        email=payload.get("email"),
+        username=username,
+    )

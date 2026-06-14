@@ -15,14 +15,16 @@ vi.mock('../../lib/supabase', () => ({
 import { Login } from './Login';
 
 describe('Login', () => {
-  it('по умолчанию показывает форму входа', () => {
+  it('по умолчанию показывает форму регистрации', () => {
     render(<Login />);
-    expect(screen.getByRole('button', { name: 'Войти' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Создать аккаунт/ })).toBeInTheDocument();
+    expect(screen.getByText('Никнейм')).toBeInTheDocument();
   });
 
-  it('переключается в режим регистрации', async () => {
+  it('переключается в режим входа', async () => {
     render(<Login />);
-    await userEvent.click(screen.getByRole('button', { name: /Нет аккаунта/ }));
-    expect(screen.getByRole('button', { name: 'Зарегистрироваться' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Войти' }));
+    expect(screen.getByRole('button', { name: /^Войти/ })).toBeInTheDocument();
+    expect(screen.queryByText('Никнейм')).not.toBeInTheDocument();
   });
 });
