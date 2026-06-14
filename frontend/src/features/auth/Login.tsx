@@ -10,7 +10,7 @@ import {
   LockIcon,
   MailIcon,
 } from '../../components/icons';
-import { Wordmark } from '../../components/Wordmark';
+import { LogoMark } from '../../components/Wordmark';
 import { supabase } from '../../lib/supabase';
 
 type Mode = 'in' | 'up';
@@ -136,7 +136,7 @@ export function Login() {
     <div className="auth-screen">
       <form className="auth-form" onSubmit={submit}>
         <div className="auth-head">
-          <Wordmark markSize={44} />
+          <LogoMark size={44} />
           <h1 className="auth-title">{isUp ? 'Создать аккаунт' : 'С возвращением'}</h1>
           <p className="auth-sub">
             {isUp

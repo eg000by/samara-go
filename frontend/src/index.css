@@ -126,7 +126,7 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
   max-width: 100%;
 }
 .auth-head { margin-bottom: var(--space-6); }
-.auth-head .wordmark { font-size: var(--text-2xl); margin-bottom: var(--space-4); }
+.auth-head .logo-mark { display: block; margin-bottom: var(--space-4); }
 .auth-title {
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
@@ -242,28 +242,20 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 .screen-pad { padding: var(--space-4); }
 .logout-btn { margin-top: var(--space-5); }
 
-/* ---- header ---------------------------------------------- */
-.app-header { padding: var(--space-3) var(--space-4) 0; }
-.header-card {
-  display: flex; align-items: center; gap: var(--space-3);
-  padding: 12px 14px;
-  background: var(--surface-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+/* ---- header — тонкая строка: только значок (+ монеты вне Карты) ---- */
+.app-header {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 36px; padding: 4px 16px 0;
 }
-.header-card .wordmark { font-size: 26px; }
-.header-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+.app-header .logo-mark { display: block; flex: none; }
 .coins-pill {
+  margin-left: auto;
   display: inline-flex; align-items: center; gap: var(--space-2);
   padding: 7px 13px 7px 9px;
   background: var(--carrot-100); color: var(--carrot-700);
   border-radius: var(--radius-pill);
   font-family: var(--font-display); font-weight: var(--fw-bold); font-size: 15px; line-height: 1;
   font-variant-numeric: tabular-nums;
-}
-.avatar {
-  display: inline-flex; align-items: center; justify-content: center; flex: none;
-  border-radius: var(--radius-circle); overflow: hidden;
-  background: var(--green-100); color: var(--green-700);
-  font-family: var(--font-display); font-weight: var(--fw-bold);
 }
 
 /* ---- bottom nav ------------------------------------------ */
@@ -273,7 +265,7 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
   z-index: var(--z-sticky);
   flex: none;
   display: flex;
-  padding: var(--space-2) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom));
+  padding: 3px 12px calc(12px + env(safe-area-inset-bottom));
   background: var(--paper);
   border-top: var(--border-w) solid var(--border-soft);
   box-shadow: 0 -6px 18px rgba(74, 54, 36, 0.06);
