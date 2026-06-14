@@ -386,6 +386,8 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
   --poster-color: transparent; background: transparent;
   pointer-events: none;
 }
+/* прячем встроенный progress-bar model-viewer (та самая «чёрная полоска») */
+.ya-player3d model-viewer::part(default-progress-bar) { display: none; }
 /* кольцо-«ты здесь» в ногах персонажа (у самой гео-точки, ниже модели) */
 .ya-player3d .ya-player-halo {
   top: auto; left: 50%; bottom: -10px;
