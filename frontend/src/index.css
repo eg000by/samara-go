@@ -198,7 +198,7 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 
 .map-card {
   position: relative;
-  height: 360px;
+  height: 440px;
   margin-top: var(--space-3);
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -311,30 +311,72 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 .inv-tile-name { font: var(--type-caption); color: var(--soil-800); text-align: center; margin-top: 7px; }
 
 /* ============================================================
-   Field 6×6
+   Поле — глиняная приподнятая грядка (clay raised bed)
    ============================================================ */
-.field-wrap { display: flex; flex-direction: column; gap: var(--space-3); }
-.field-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-2); }
-@media (max-width: 420px) { .field-grid { grid-template-columns: repeat(4, 1fr); } }
-.cell {
-  min-height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: var(--space-1); padding: var(--space-2);
-  background: var(--surface-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
-  text-align: center; font-size: var(--text-xs);
+.field-screen { padding: var(--space-5) var(--space-4) 0; }
+.field-titlerow { display: flex; align-items: baseline; justify-content: space-between; padding: 0 2px var(--space-3); }
+.field-titlerow h2 { font: var(--type-title); letter-spacing: var(--tracking-tight); }
+.field-sub { font: var(--type-label); color: var(--green-600); white-space: nowrap; }
+
+.clay-bed {
+  background: linear-gradient(180deg, var(--clay-400), var(--clay-500));
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  box-shadow: 0 12px 0 var(--clay-700), 0 26px 44px rgba(74, 54, 36, 0.32);
 }
-.cell .cell-name { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--text-xs); }
-.cell img.crop { width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(74, 54, 36, 0.18)); }
-.cell.empty {
-  background: var(--color-bg-sunken); box-shadow: var(--shadow-inset);
-  color: var(--soil-400); font-size: var(--text-2xl); cursor: pointer;
-  border: var(--border-w) dashed var(--border-strong);
+.soil-well {
+  display: grid;
+  gap: var(--space-2);
+  background: linear-gradient(180deg, #5A3C26, #492F1F);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: inset 0 7px 16px rgba(0, 0, 0, 0.42);
 }
-.cell.empty:hover { color: var(--green-500); border-color: var(--green-300); }
-.cell.ready { outline: var(--border-w-bold) solid var(--green-400); outline-offset: -2px; box-shadow: 0 0 0 4px rgba(82, 176, 105, 0.18), var(--shadow-sm); }
-.cell button { height: 30px; padding: 0 var(--space-2); font-size: var(--text-xs); border-radius: var(--radius-sm); }
-.cell small { color: var(--text-muted); font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
-.bar { width: 100%; height: 8px; background: var(--color-bg-sunken); border-radius: var(--radius-pill); box-shadow: var(--shadow-inset); overflow: hidden; }
-.bar-fill { height: 100%; background: var(--brand-primary); border-radius: var(--radius-pill); transition: width var(--dur-slow) var(--ease-out); }
+.plot {
+  position: relative; aspect-ratio: 1; height: auto; padding: 0;
+  border: none; border-radius: var(--radius-md); box-shadow: none;
+  background: radial-gradient(circle at 50% 32%, #6E4B30, #4C3320);
+  box-shadow: inset 0 -7px 12px rgba(0, 0, 0, 0.34), inset 0 5px 8px rgba(255, 255, 255, 0.05), 0 3px 7px rgba(0, 0, 0, 0.22);
+  display: flex; align-items: center; justify-content: center;
+}
+.plot:hover:not(:disabled) { filter: none; }
+.plot:active:not(:disabled) { transform: none; box-shadow: inset 0 -7px 12px rgba(0, 0, 0, 0.34), inset 0 5px 8px rgba(255, 255, 255, 0.05), 0 3px 7px rgba(0, 0, 0, 0.22); }
+.plot.empty { cursor: pointer; }
+.plot-add {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px dashed rgba(255, 236, 210, 0.5); color: rgba(255, 236, 210, 0.7);
+  display: flex; align-items: center; justify-content: center;
+}
+.plot.empty:hover .plot-add { border-color: rgba(255, 236, 210, 0.85); color: rgba(255, 236, 210, 0.95); }
+.plot .crop { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 7px 6px rgba(0, 0, 0, 0.42)); opacity: 0.9; transform: translateY(3px) scale(0.96); }
+.plot .crop.ripe { width: 62px; height: 62px; opacity: 1; transform: none; animation: og-grow 3s ease-in-out infinite; }
+.plot.ready { cursor: pointer; }
+.plot-glow { position: absolute; inset: 9px; border-radius: 12px; animation: og-glow 2.2s ease-in-out infinite; }
+.plot-badge {
+  position: absolute; top: 6px; right: 6px;
+  background: var(--green-500); color: #fff; border: 2px solid rgba(255, 255, 255, 0.85);
+  font-family: var(--font-display); font-weight: var(--fw-bold); font-size: 10px;
+  padding: 2px 7px; border-radius: var(--radius-pill); line-height: 1;
+}
+.plot-timer {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px; white-space: nowrap;
+  background: rgba(44, 32, 24, 0.68); color: var(--carrot-300);
+  padding: 3px 8px; border-radius: 999px;
+  font-family: var(--font-body); font-weight: var(--fw-extra); font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes og-grow { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-4px) rotate(1.5deg); } }
+@keyframes og-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(247, 147, 30, 0); } 50% { box-shadow: 0 0 0 7px rgba(247, 147, 30, 0.20); } }
+@media (prefers-reduced-motion: reduce) {
+  .plot .crop.ripe { animation: none; }
+  .plot-glow { animation: none; }
+}
+
+.field-actions { display: flex; gap: var(--space-2); margin-top: var(--space-4); }
+.field-actions .harvest-all { flex: 1; }
+.field-actions .expand-btn { flex: none; padding: 0 var(--space-4); }
+.field-caption { font: var(--type-caption); color: var(--text-muted); padding: var(--space-2) var(--space-1) 0; }
 
 /* ---- seed picker dialog ----------------------------------- */
 .picker-backdrop {

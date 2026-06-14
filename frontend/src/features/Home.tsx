@@ -50,16 +50,12 @@ export function Home() {
           </div>
         </header>
 
-        {tab === 'map' && (
+        {tab === 'map' && <MapView />}
+        {tab === 'field' && (
           <>
-            <MapView />
+            <FieldView />
             <InventoryRail />
           </>
-        )}
-        {tab === 'field' && (
-          <div className="screen-pad">
-            <FieldView />
-          </div>
         )}
         {tab === 'diary' && (
           <div className="screen-pad">

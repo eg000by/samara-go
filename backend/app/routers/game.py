@@ -18,6 +18,7 @@ from ..spawn import active_seed_count, spawn_seeds
 from ..schemas import (
     CatalogEntry,
     CollectResult,
+    ExpandResult,
     FieldCellOut,
     HarvestIn,
     HarvestResult,
@@ -166,14 +167,17 @@ async def field(
     user: CurrentUser = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> list[FieldCellOut]:
-    """Поле 6x6. Стадия роста вычисляется ЛЕНИВО из planted_at — без таймеров."""
+    """Поле игрока. Размер — side×side (open грядка), растёт за монеты.
+    Стадия роста вычисляется ЛЕНИВО из planted_at — без таймеров."""
+    prof = await session.get(User, user.id)
+    side = prof.field_side if prof else settings.FIELD_START_SIDE
     rows = (await session.execute(
         select(FieldCell).where(FieldCell.user_id == user.id)
     )).scalars().all()
     by_idx = {c.cell_index: c for c in rows}
 
     cells: list[FieldCellOut] = []
-    n = settings.FIELD_SIZE * settings.FIELD_SIZE
+    n = side * side
     for i in range(n):
         c = by_idx.get(i)
         if c is None or c.planted_seed_type is None:
@@ -199,6 +203,11 @@ async def plant(
 ) -> FieldCellOut:
     if body.seed_type not in SEED_CATALOG:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "unknown seed_type")
+
+    prof = await session.get(User, user.id)
+    side = prof.field_side if prof else settings.FIELD_START_SIDE
+    if body.cell_index >= side * side:
+        raise HTTPException(status.HTTP_409_CONFLICT, "эта грядка ещё не открыта")
 
     inv = (await session.execute(
         select(InventoryItem)
@@ -267,3 +276,32 @@ async def harvest(
                     {"cell_index": body.cell_index, "seed_type": seed_type, "reward": reward})
     await session.commit()
     return HarvestResult(cell_index=body.cell_index, seed_type=seed_type, reward=reward, currency=user_row.currency)
+
+
+@router.post("/field/expand", response_model=ExpandResult)
+async def expand_field(
+    user: CurrentUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ExpandResult:
+    """Расширить грядку на один ряд (side -> side+1) за монеты."""
+    prof = await session.get(User, user.id, with_for_update=True)
+    if prof is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "profile not found")
+
+    side = prof.field_side
+    if side >= settings.FIELD_SIZE:
+        raise HTTPException(status.HTTP_409_CONFLICT, "поле уже максимального размера")
+
+    cost = settings.FIELD_EXPAND_COST_PER_SIDE * side
+    if prof.currency < cost:
+        raise HTTPException(status.HTTP_409_CONFLICT, "не хватает монет на расширение")
+
+    prof.currency -= cost
+    prof.field_side = side + 1
+
+    await log_event(session, "expand", user.id, {"new_side": prof.field_side, "cost": cost})
+    await session.commit()
+
+    new_side = prof.field_side
+    next_cost = settings.FIELD_EXPAND_COST_PER_SIDE * new_side if new_side < settings.FIELD_SIZE else None
+    return ExpandResult(currency=prof.currency, field_side=new_side, expand_cost=next_cost)

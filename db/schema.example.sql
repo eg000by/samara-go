@@ -17,6 +17,7 @@ create table if not exists public.users (
     id         uuid primary key references auth.users(id) on delete cascade,
     username   text,
     currency   integer not null default 0 check (currency >= 0),
+    field_side smallint not null default 3,  -- сторона открытой грядки (3..6), растёт за монеты
     created_at timestamptz not null default now()
 );
 

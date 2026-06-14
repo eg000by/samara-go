@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth import CurrentUser, get_current_user
+from ..config import settings
 from ..db import get_session
 from ..events import log_event
 from ..models import User
@@ -13,11 +14,18 @@ from ..schemas import UserProfile
 router = APIRouter(tags=["profile"])
 
 
+def _expand_cost(side: int) -> int | None:
+    """Цена расширения грядки с текущей стороны (None если уже максимум)."""
+    if side >= settings.FIELD_SIZE:
+        return None
+    return settings.FIELD_EXPAND_COST_PER_SIDE * side
+
+
 @router.get("/me", response_model=UserProfile)
 async def me(
     user: CurrentUser = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> User:
+) -> UserProfile:
     profile = await session.get(User, user.id)
     if profile is None:
         # подстраховка: обычно профиль создаёт триггер on_auth_user_created
@@ -27,4 +35,10 @@ async def me(
     await log_event(session, "login", user_id=user.id)
     await session.commit()
     await session.refresh(profile)
-    return profile
+    return UserProfile(
+        id=profile.id,
+        username=profile.username,
+        currency=profile.currency,
+        field_side=profile.field_side,
+        expand_cost=_expand_cost(profile.field_side),
+    )

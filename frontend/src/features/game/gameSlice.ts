@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { api } from '../../lib/api';
-import { setCurrency } from '../../store/authSlice';
+import { setCurrency, setFieldInfo } from '../../store/authSlice';
 import type { CatalogEntry, FieldCell, InventoryItem, LatLon, SeedOnMap } from '../../types';
 
 interface GameState {
@@ -52,6 +52,27 @@ export const harvestCell = createAsyncThunk(
     return res;
   },
 );
+
+export const harvestAllReady = createAsyncThunk(
+  'game/harvestAll',
+  async (indexes: number[], { dispatch }) => {
+    let count = 0;
+    for (const i of indexes) {
+      const res = await api.harvest(i);
+      dispatch(setCurrency(res.currency));
+      count += 1;
+    }
+    void dispatch(fetchField());
+    return count;
+  },
+);
+
+export const expandField = createAsyncThunk('game/expand', async (_: void, { dispatch }) => {
+  const res = await api.expandField();
+  dispatch(setFieldInfo({ currency: res.currency, field_side: res.field_side, expand_cost: res.expand_cost }));
+  void dispatch(fetchField());
+  return res;
+});
 
 export const collectSeed = createAsyncThunk(
   'game/collect',
@@ -105,6 +126,15 @@ const gameSlice = createSlice({
       })
       .addCase(harvestCell.rejected, (state, action) => {
         state.error = action.error.message ?? 'Не удалось собрать урожай';
+      })
+      .addCase(harvestAllReady.fulfilled, (state, action) => {
+        if (action.payload > 0) state.toast = `Урожай собран! 🌾 ×${action.payload}`;
+      })
+      .addCase(expandField.fulfilled, (state) => {
+        state.toast = 'Грядка расширена! 🌱';
+      })
+      .addCase(expandField.rejected, (state, action) => {
+        state.error = action.error.message ?? 'Не удалось расширить';
       })
       .addCase(collectSeed.fulfilled, (state, action) => {
         // убираем собранное семя с карты сразу, не дожидаясь рефетча

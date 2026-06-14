@@ -28,6 +28,14 @@ const authSlice = createSlice({
     setCurrency(state, action: PayloadAction<number>) {
       if (state.profile) state.profile.currency = action.payload;
     },
+    // после расширения грядки: новый баланс + размер + цена след. расширения
+    setFieldInfo(state, action: PayloadAction<{ currency: number; field_side: number; expand_cost: number | null }>) {
+      if (state.profile) {
+        state.profile.currency = action.payload.currency;
+        state.profile.field_side = action.payload.field_side;
+        state.profile.expand_cost = action.payload.expand_cost;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -45,5 +53,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { signedOut, setCurrency } = authSlice.actions;
+export const { signedOut, setCurrency, setFieldInfo } = authSlice.actions;
 export default authSlice.reducer;

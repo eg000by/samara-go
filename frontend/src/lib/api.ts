@@ -5,6 +5,7 @@ import { supabase } from './supabase';
 import type {
   CatalogEntry,
   CollectResult,
+  ExpandResult,
   FieldCell,
   HarvestResult,
   InventoryItem,
@@ -74,5 +75,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ cell_index: cellIndex }),
     }),
+  expandField: () => request<ExpandResult>('/field/expand', { method: 'POST' }),
   stats: () => request<StatsResponse>('/stats'),
 };

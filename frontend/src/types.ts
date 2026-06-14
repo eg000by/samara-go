@@ -6,6 +6,14 @@ export interface UserProfile {
   id: string;
   username: string | null;
   currency: number;
+  field_side: number; // сторона открытой грядки (3..6)
+  expand_cost: number | null; // цена следующего расширения; null если максимум
+}
+
+export interface ExpandResult {
+  currency: number;
+  field_side: number;
+  expand_cost: number | null;
 }
 
 export interface CatalogEntry {

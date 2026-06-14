@@ -52,6 +52,19 @@ export const BookIcon = (p: IcoProps) => (
   </Ico>
 );
 
+export const ClockIcon = (p: IcoProps) => (
+  <Ico {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7.5v5l3 2" />
+  </Ico>
+);
+
+export const PlusIcon = (p: IcoProps) => (
+  <Ico {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Ico>
+);
+
 // Монета — заливочная (карротовые тона), не контурная.
 export function CoinIcon({ size = 18 }: { size?: number }) {
   return (
