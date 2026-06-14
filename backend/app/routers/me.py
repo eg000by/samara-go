@@ -5,20 +5,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth import CurrentUser, get_current_user
-from ..config import settings
 from ..db import get_session
+from ..economy import expand_cost
 from ..events import log_event
 from ..models import User
 from ..schemas import UserProfile
 
 router = APIRouter(tags=["profile"])
-
-
-def _expand_cost(unlocked: int) -> int | None:
-    """Цена открытия следующей клетки (None если все открыты)."""
-    if unlocked >= settings.PLOTS_MAX:
-        return None
-    return settings.FIELD_EXPAND_COST
 
 
 @router.get("/me", response_model=UserProfile)
@@ -40,5 +33,5 @@ async def me(
         username=profile.username,
         currency=profile.currency,
         plots_unlocked=profile.plots_unlocked,
-        expand_cost=_expand_cost(profile.plots_unlocked),
+        expand_cost=expand_cost(profile.plots_unlocked),
     )

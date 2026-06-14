@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type ymaps from 'yandex-maps';
 import { Map, Placemark, YMaps, useYMaps } from '@pbe/react-yandex-maps';
 
+import { PinIcon } from '../../components/icons';
 import { RARITY_COLOR, RARITY_LABEL, rarityStyle, seedImage } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import type { LatLon, SeedOnMap } from '../../types';
@@ -22,12 +23,12 @@ const SEED_SHAPE = { type: 'Circle', coordinates: [0, -30], radius: 26 } as ymap
 function MapCanvas({
   pos,
   seeds,
-  setPos,
+  onMapClick,
   onSelect,
 }: {
   pos: LatLon;
   seeds: SeedOnMap[];
-  setPos: (p: LatLon) => void;
+  onMapClick: (p: LatLon) => void;
   onSelect: (id: number | null) => void;
 }) {
   const ymapsApi = useYMaps(['templateLayoutFactory']);
@@ -80,7 +81,7 @@ function MapCanvas({
         onClick={(e: ymaps.IEvent) => {
           const c = e.get('coords') as [number, number] | undefined;
           if (c) {
-            setPos({ lat: c[0], lon: c[1] });
+            onMapClick({ lat: c[0], lon: c[1] });
             onSelect(null);
           }
         }}
@@ -116,6 +117,7 @@ export function MapView() {
   const seeds = useAppSelector((s) => s.game.seeds);
   const [pos, setPos] = useState<LatLon>(CENTER);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [gpsOn, setGpsOn] = useState(false); // временный тумблер: следить за реальным GPS
 
   useEffect(() => {
     void dispatch(fetchInventory());
@@ -128,16 +130,50 @@ export function MapView() {
     return () => clearInterval(t);
   }, [dispatch, pos]);
 
+  // режим GPS: следим за реальной геопозицией (после разработки станет дефолтным)
+  useEffect(() => {
+    if (!gpsOn) return;
+    if (!navigator.geolocation) {
+      alert('Геолокация недоступна в этом браузере');
+      setGpsOn(false);
+      return;
+    }
+    const id = navigator.geolocation.watchPosition(
+      (p) => setPos({ lat: p.coords.latitude, lon: p.coords.longitude }),
+      (err) => {
+        alert(`Геолокация недоступна: ${err.message}`);
+        setGpsOn(false);
+      },
+      { enableHighAccuracy: true, maximumAge: 5000 },
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, [gpsOn]);
+
+  // клик по карте перемещает игрока только в демо-режиме (когда GPS выключен)
+  function handleMapClick(p: LatLon) {
+    if (!gpsOn) setPos(p);
+  }
+
   const selected = seeds.find((s) => s.id === selectedId) ?? null;
 
   return (
     <div className="map-wrap">
-      <p className="map-caption">клик по карте — переместиться (демо)</p>
+      <div className="map-toolbar">
+        <button
+          className={gpsOn ? '' : 'soft'}
+          onClick={() => setGpsOn((v) => !v)}
+        >
+          <PinIcon size={17} /> {gpsOn ? 'GPS включён' : 'Включить GPS'}
+        </button>
+        <span className="map-caption">
+          {gpsOn ? 'двигайся в реальности — метка следует за тобой' : 'клик по карте — переместиться (демо)'}
+        </span>
+      </div>
 
       <div className="map-card">
         {APIKEY ? (
           <YMaps query={{ apikey: APIKEY, lang: 'ru_RU' }}>
-            <MapCanvas pos={pos} seeds={seeds} setPos={setPos} onSelect={setSelectedId} />
+            <MapCanvas pos={pos} seeds={seeds} onMapClick={handleMapClick} onSelect={setSelectedId} />
           </YMaps>
         ) : (
           <div className="map-nokey">

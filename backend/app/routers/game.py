@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..auth import CurrentUser, get_current_user
 from ..config import settings
 from ..db import get_session
+from ..economy import expand_cost
 from ..events import log_event
 from ..game import SEED_CATALOG, growth_progress, growth_stage, is_ready
 from ..models import FieldCell, InventoryItem, User
@@ -292,10 +293,9 @@ async def expand_field(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "profile not found")
 
     unlocked = prof.plots_unlocked
-    if unlocked >= settings.PLOTS_MAX:
+    cost = expand_cost(unlocked)
+    if cost is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "все клетки уже открыты")
-
-    cost = settings.FIELD_EXPAND_COST
     if prof.currency < cost:
         raise HTTPException(status.HTTP_409_CONFLICT, "не хватает монет")
 
@@ -305,6 +305,8 @@ async def expand_field(
     await log_event(session, "expand", user.id, {"plots_unlocked": prof.plots_unlocked, "cost": cost})
     await session.commit()
 
-    new_unlocked = prof.plots_unlocked
-    next_cost = settings.FIELD_EXPAND_COST if new_unlocked < settings.PLOTS_MAX else None
-    return ExpandResult(currency=prof.currency, plots_unlocked=new_unlocked, expand_cost=next_cost)
+    return ExpandResult(
+        currency=prof.currency,
+        plots_unlocked=prof.plots_unlocked,
+        expand_cost=expand_cost(prof.plots_unlocked),
+    )
