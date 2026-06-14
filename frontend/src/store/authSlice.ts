@@ -29,10 +29,10 @@ const authSlice = createSlice({
       if (state.profile) state.profile.currency = action.payload;
     },
     // после расширения грядки: новый баланс + размер + цена след. расширения
-    setFieldInfo(state, action: PayloadAction<{ currency: number; field_side: number; expand_cost: number | null }>) {
+    setFieldInfo(state, action: PayloadAction<{ currency: number; plots_unlocked: number; expand_cost: number | null }>) {
       if (state.profile) {
         state.profile.currency = action.payload.currency;
-        state.profile.field_side = action.payload.field_side;
+        state.profile.plots_unlocked = action.payload.plots_unlocked;
         state.profile.expand_cost = action.payload.expand_cost;
       }
     },

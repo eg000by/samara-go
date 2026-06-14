@@ -167,18 +167,21 @@ async def field(
     user: CurrentUser = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> list[FieldCellOut]:
-    """Поле игрока. Размер — side×side (open грядка), растёт за монеты.
+    """Поле 3×3 = 9 клеток. Часть клеток закрыта (locked) — открываются за монеты.
     Стадия роста вычисляется ЛЕНИВО из planted_at — без таймеров."""
     prof = await session.get(User, user.id)
-    side = prof.field_side if prof else settings.FIELD_START_SIDE
+    unlocked = prof.plots_unlocked if prof else settings.PLOTS_START
     rows = (await session.execute(
         select(FieldCell).where(FieldCell.user_id == user.id)
     )).scalars().all()
     by_idx = {c.cell_index: c for c in rows}
 
     cells: list[FieldCellOut] = []
-    n = side * side
+    n = settings.FIELD_SIDE * settings.FIELD_SIDE
     for i in range(n):
+        if i >= unlocked:
+            cells.append(FieldCellOut(cell_index=i, empty=True, locked=True))
+            continue
         c = by_idx.get(i)
         if c is None or c.planted_seed_type is None:
             cells.append(FieldCellOut(cell_index=i, empty=True))
@@ -205,9 +208,9 @@ async def plant(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "unknown seed_type")
 
     prof = await session.get(User, user.id)
-    side = prof.field_side if prof else settings.FIELD_START_SIDE
-    if body.cell_index >= side * side:
-        raise HTTPException(status.HTTP_409_CONFLICT, "эта грядка ещё не открыта")
+    unlocked = prof.plots_unlocked if prof else settings.PLOTS_START
+    if body.cell_index >= unlocked:
+        raise HTTPException(status.HTTP_409_CONFLICT, "эта клетка ещё закрыта")
 
     inv = (await session.execute(
         select(InventoryItem)
@@ -283,25 +286,25 @@ async def expand_field(
     user: CurrentUser = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> ExpandResult:
-    """Расширить грядку на один ряд (side -> side+1) за монеты."""
+    """Открыть одну закрытую клетку поля за монеты."""
     prof = await session.get(User, user.id, with_for_update=True)
     if prof is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "profile not found")
 
-    side = prof.field_side
-    if side >= settings.FIELD_SIZE:
-        raise HTTPException(status.HTTP_409_CONFLICT, "поле уже максимального размера")
+    unlocked = prof.plots_unlocked
+    if unlocked >= settings.PLOTS_MAX:
+        raise HTTPException(status.HTTP_409_CONFLICT, "все клетки уже открыты")
 
     cost = settings.FIELD_EXPAND_COST
     if prof.currency < cost:
-        raise HTTPException(status.HTTP_409_CONFLICT, "не хватает монет на расширение")
+        raise HTTPException(status.HTTP_409_CONFLICT, "не хватает монет")
 
     prof.currency -= cost
-    prof.field_side = side + 1
+    prof.plots_unlocked = unlocked + 1
 
-    await log_event(session, "expand", user.id, {"new_side": prof.field_side, "cost": cost})
+    await log_event(session, "expand", user.id, {"plots_unlocked": prof.plots_unlocked, "cost": cost})
     await session.commit()
 
-    new_side = prof.field_side
-    next_cost = settings.FIELD_EXPAND_COST if new_side < settings.FIELD_SIZE else None
-    return ExpandResult(currency=prof.currency, field_side=new_side, expand_cost=next_cost)
+    new_unlocked = prof.plots_unlocked
+    next_cost = settings.FIELD_EXPAND_COST if new_unlocked < settings.PLOTS_MAX else None
+    return ExpandResult(currency=prof.currency, plots_unlocked=new_unlocked, expand_cost=next_cost)

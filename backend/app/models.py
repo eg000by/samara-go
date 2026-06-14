@@ -35,8 +35,8 @@ class User(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True)
     username: Mapped[str | None] = mapped_column(Text)
     currency: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
-    # сторона открытой грядки (3..FIELD_SIZE); расширяется за монеты
-    field_side: Mapped[int] = mapped_column(SmallInteger, default=3, server_default=text("3"))
+    # сколько клеток поля открыто (3..9); остальные открываются за монеты
+    plots_unlocked: Mapped[int] = mapped_column(SmallInteger, default=3, server_default=text("3"))
     created_at: Mapped[datetime] = mapped_column(_TS, server_default=text("now()"))
 
 

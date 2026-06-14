@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type ymaps from 'yandex-maps';
 import { Map, Placemark, YMaps, useYMaps } from '@pbe/react-yandex-maps';
 
-import { PinIcon, RefreshIcon } from '../../components/icons';
 import { RARITY_COLOR, RARITY_LABEL, rarityStyle, seedImage } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import type { LatLon, SeedOnMap } from '../../types';
@@ -129,25 +128,10 @@ export function MapView() {
     return () => clearInterval(t);
   }, [dispatch, pos]);
 
-  function useGps() {
-    navigator.geolocation.getCurrentPosition(
-      (p) => setPos({ lat: p.coords.latitude, lon: p.coords.longitude }),
-      (err) => alert(`Геолокация недоступна: ${err.message}`),
-    );
-  }
-
   const selected = seeds.find((s) => s.id === selectedId) ?? null;
 
   return (
     <div className="map-wrap">
-      <div className="map-actions">
-        <button onClick={useGps}>
-          <PinIcon size={18} /> Моё GPS
-        </button>
-        <button className="soft" onClick={() => setPos(CENTER)}>
-          <RefreshIcon size={17} /> В центр Питера
-        </button>
-      </div>
       <p className="map-caption">клик по карте — переместиться (демо)</p>
 
       <div className="map-card">

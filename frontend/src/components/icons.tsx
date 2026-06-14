@@ -65,6 +65,13 @@ export const PlusIcon = (p: IcoProps) => (
   </Ico>
 );
 
+export const LockIcon = (p: IcoProps) => (
+  <Ico {...p}>
+    <rect x="5" y="11" width="14" height="9" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </Ico>
+);
+
 // Монета — заливочная (карротовые тона), не контурная.
 export function CoinIcon({ size = 18 }: { size?: number }) {
   return (

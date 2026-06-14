@@ -69,7 +69,7 @@ export const harvestAllReady = createAsyncThunk(
 
 export const expandField = createAsyncThunk('game/expand', async (_: void, { dispatch }) => {
   const res = await api.expandField();
-  dispatch(setFieldInfo({ currency: res.currency, field_side: res.field_side, expand_cost: res.expand_cost }));
+  dispatch(setFieldInfo({ currency: res.currency, plots_unlocked: res.plots_unlocked, expand_cost: res.expand_cost }));
   void dispatch(fetchField());
   return res;
 });

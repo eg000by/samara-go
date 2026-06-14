@@ -11,14 +11,14 @@ class UserProfile(BaseModel):
     id: UUID
     username: str | None
     currency: int
-    field_side: int = 3
-    expand_cost: int | None = None  # цена следующего расширения; None если максимум
+    plots_unlocked: int = 3
+    expand_cost: int | None = None  # цена открытия следующей клетки; None если все открыты
 
 
 class ExpandResult(BaseModel):
-    currency: int          # новый баланс
-    field_side: int        # новая сторона поля
-    expand_cost: int | None  # цена следующего расширения (None если максимум)
+    currency: int            # новый баланс
+    plots_unlocked: int      # сколько клеток открыто теперь
+    expand_cost: int | None  # цена открытия следующей клетки (None если все открыты)
 
 
 class PlayerPos(BaseModel):
@@ -64,6 +64,7 @@ class InventoryItemOut(BaseModel):
 class FieldCellOut(BaseModel):
     cell_index: int
     empty: bool
+    locked: bool = False    # клетка ещё не открыта (нужно купить за монеты)
     seed_type: str | None = None
     name: str | None = None
     stage: int = 0          # 0..4, 4 = спелое

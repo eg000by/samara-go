@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { ClockIcon, CoinIcon, PlusIcon } from '../../components/icons';
+import { ClockIcon, CoinIcon, LockIcon, PlusIcon } from '../../components/icons';
 import { rarityStyle, seedImage } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -26,7 +26,9 @@ export function FieldView() {
   const inventory = useAppSelector((s) => s.game.inventory);
   const profile = useAppSelector((s) => s.auth.profile);
 
-  const side = profile?.field_side ?? 3;
+  const GRID = 3; // фиксированная сетка 3×3
+  const total = GRID * GRID;
+  const unlocked = profile?.plots_unlocked ?? 3;
   const cost = profile?.expand_cost ?? null;
   const currency = profile?.currency ?? 0;
   const maxed = cost === null;
@@ -51,6 +53,7 @@ export function FieldView() {
 
   // пересчёт состояния клетки с учётом «живого» времени
   function compute(cell: (typeof field)[number]) {
+    if (cell.locked) return { state: 'locked' as const };
     if (cell.empty || !cell.seed_type) return { state: 'empty' as const };
     const grow = catalog[cell.seed_type]?.grow_seconds ?? 0;
     const remaining = Math.max(0, cell.seconds_left - elapsed);
@@ -66,14 +69,21 @@ export function FieldView() {
       <div className="field-titlerow">
         <h2>Моё поле</h2>
         <span className="field-sub">
-          {side} × {side} грядки
+          {unlocked} / {total} открыто
         </span>
       </div>
 
       <div className="clay-bed">
-        <div className="soil-well" style={{ gridTemplateColumns: `repeat(${side}, 1fr)` }}>
+        <div className="soil-well" style={{ gridTemplateColumns: `repeat(${GRID}, 1fr)` }}>
           {field.map((cell) => {
             const c = compute(cell);
+            if (c.state === 'locked') {
+              return (
+                <div key={cell.cell_index} className="plot locked" aria-label="Закрыто">
+                  <LockIcon size={20} />
+                </div>
+              );
+            }
             if (c.state === 'empty') {
               return (
                 <button

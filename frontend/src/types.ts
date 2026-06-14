@@ -6,13 +6,13 @@ export interface UserProfile {
   id: string;
   username: string | null;
   currency: number;
-  field_side: number; // сторона открытой грядки (3..6)
-  expand_cost: number | null; // цена следующего расширения; null если максимум
+  plots_unlocked: number; // сколько клеток поля 3×3 открыто (3..9)
+  expand_cost: number | null; // цена открытия следующей клетки; null если все открыты
 }
 
 export interface ExpandResult {
   currency: number;
-  field_side: number;
+  plots_unlocked: number;
   expand_cost: number | null;
 }
 
@@ -52,6 +52,7 @@ export interface InventoryItem {
 export interface FieldCell {
   cell_index: number;
   empty: boolean;
+  locked: boolean; // клетка ещё не открыта
   seed_type: string | null;
   name: string | null;
   stage: number; // 0..4, 4 = спелое

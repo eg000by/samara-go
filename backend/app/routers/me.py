@@ -14,9 +14,9 @@ from ..schemas import UserProfile
 router = APIRouter(tags=["profile"])
 
 
-def _expand_cost(side: int) -> int | None:
-    """Цена расширения грядки (None если уже максимум)."""
-    if side >= settings.FIELD_SIZE:
+def _expand_cost(unlocked: int) -> int | None:
+    """Цена открытия следующей клетки (None если все открыты)."""
+    if unlocked >= settings.PLOTS_MAX:
         return None
     return settings.FIELD_EXPAND_COST
 
@@ -39,6 +39,6 @@ async def me(
         id=profile.id,
         username=profile.username,
         currency=profile.currency,
-        field_side=profile.field_side,
-        expand_cost=_expand_cost(profile.field_side),
+        plots_unlocked=profile.plots_unlocked,
+        expand_cost=_expand_cost(profile.plots_unlocked),
     )
