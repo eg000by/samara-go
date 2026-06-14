@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { rarityStyle, seedImage } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchCatalog, fetchField, fetchInventory, harvestCell, plantSeed } from './gameSlice';
 
@@ -55,14 +56,15 @@ export function FieldView() {
           const ready = remaining <= 0;
           return (
             <div key={cell.cell_index} className={`cell ${ready ? 'ready' : ''}`}>
-              <b>{cell.name}</b>
+              <img className="crop" src={seedImage(cell.seed_type)} alt="" />
+              <span className="cell-name">{cell.name}</span>
               <div className="bar">
                 <div className="bar-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
               </div>
               {ready ? (
-                <button onClick={() => void dispatch(harvestCell(cell.cell_index))}>Собрать</button>
+                <button onClick={() => void dispatch(harvestCell(cell.cell_index))}>🌾 Собрать</button>
               ) : (
-                <small className="muted">{fmt(remaining)}</small>
+                <small>{fmt(remaining)}</small>
               )}
             </div>
           );
@@ -79,12 +81,17 @@ export function FieldView() {
               inventory.map((i) => (
                 <button
                   key={i.seed_type}
+                  className="pick-row"
                   onClick={() => {
                     void dispatch(plantSeed({ cellIndex: planting, seedType: i.seed_type }));
                     setPlanting(null);
                   }}
                 >
-                  {i.name} ×{i.qty}
+                  <span className="seed-thumb" style={rarityStyle(i.rarity)}>
+                    <img src={seedImage(i.seed_type)} alt="" />
+                  </span>
+                  <span>{i.name}</span>
+                  <span className="inv-qty">×{i.qty}</span>
                 </button>
               ))
             )}

@@ -11,21 +11,16 @@ import {
   useMapEvents,
 } from 'react-leaflet';
 
+import { RARITY_COLOR, RARITY_LABEL, rarityStyle, seedImage } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import type { LatLon, Rarity } from '../../types';
+import type { LatLon } from '../../types';
 import { collectSeed, fetchInventory, fetchMap } from './gameSlice';
 
 // Дворцовая площадь — центр карты и точка по умолчанию.
 const CENTER: LatLon = { lat: 59.9398, lon: 30.3146 };
 const COLLECT_RADIUS_M = 50;
 
-const RARITY_COLOR: Record<Rarity, string> = {
-  common: '#9ca3af',
-  uncommon: '#22c55e',
-  rare: '#3b82f6',
-  epic: '#a855f7',
-  legendary: '#f59e0b',
-};
+const GREEN = '#3E9B4F'; // brand-primary — игрок и радиус сбора
 
 // Клик по карте «перемещает» игрока (демо: ревьюер не в Питере физически).
 function ClickToMove({ onMove }: { onMove: (p: LatLon) => void }) {
@@ -73,10 +68,10 @@ export function MapView() {
     <div className="map-wrap">
       <div className="map-toolbar">
         <button onClick={useGps}>📍 Моё GPS</button>
-        <button className="link" onClick={() => setPos(CENTER)}>
+        <button className="soft" onClick={() => setPos(CENTER)}>
           ↺ В центр Питера
         </button>
-        <span className="muted">клик по карте — переместиться (демо)</span>
+        <span className="hint">клик по карте — переместиться (демо)</span>
       </div>
 
       <MapContainer
@@ -98,38 +93,42 @@ export function MapView() {
         <Circle
           center={[pos.lat, pos.lon]}
           radius={COLLECT_RADIUS_M}
-          pathOptions={{ color: '#2563eb', weight: 1, fillOpacity: 0.05 }}
+          pathOptions={{ color: GREEN, weight: 1.5, fillColor: GREEN, fillOpacity: 0.08 }}
         />
         <CircleMarker
           center={[pos.lat, pos.lon]}
           radius={8}
-          pathOptions={{ color: '#fff', weight: 2, fillColor: '#2563eb', fillOpacity: 1 }}
+          pathOptions={{ color: '#fff', weight: 3, fillColor: GREEN, fillOpacity: 1 }}
         />
 
         {seeds.map((seed) => (
           <CircleMarker
             key={seed.id}
             center={[seed.lat, seed.lon]}
-            radius={7}
+            radius={8}
             pathOptions={{
-              color: RARITY_COLOR[seed.rarity],
+              color: '#fff',
+              weight: 2,
               fillColor: RARITY_COLOR[seed.rarity],
-              fillOpacity: 0.9,
+              fillOpacity: 0.95,
             }}
           >
             <Popup>
-              <b>{seed.name}</b>
-              <br />
-              <small className="muted">
-                {seed.rarity} · {Math.round(seed.dist_m)} м
-              </small>
-              <br />
-              <button
-                disabled={!seed.can_collect}
-                onClick={() => void dispatch(collectSeed({ id: seed.id, pos }))}
-              >
-                {seed.can_collect ? 'Собрать' : 'Слишком далеко'}
-              </button>
+              <div className="popup-seed">
+                <span className="seed-thumb" style={rarityStyle(seed.rarity)}>
+                  <img src={seedImage(seed.seed_type)} alt="" />
+                </span>
+                <span className="popup-name">{seed.name}</span>
+                <span className="popup-meta">
+                  {RARITY_LABEL[seed.rarity]} · 📍 {Math.round(seed.dist_m)} м
+                </span>
+                <button
+                  disabled={!seed.can_collect}
+                  onClick={() => void dispatch(collectSeed({ id: seed.id, pos }))}
+                >
+                  {seed.can_collect ? '🌱 Собрать' : 'Слишком далеко'}
+                </button>
+              </div>
             </Popup>
           </CircleMarker>
         ))}

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .routers import cron, game, health, me, stats
 
-app = FastAPI(title="Piter-Go API", version="0.1.0")
+app = FastAPI(title="оГород API", version="0.1.0")
 
 # CORS: FRONTEND_ORIGIN может содержать несколько доменов через запятую
 # (Firebase даёт .web.app и .firebaseapp.com, плюс localhost для разработки).
@@ -28,4 +28,4 @@ app.include_router(stats.router)
 
 @app.get("/")
 async def root() -> dict:
-    return {"service": "piter-go", "docs": "/docs"}
+    return {"service": "ogorod", "docs": "/docs"}

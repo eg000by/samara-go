@@ -1,0 +1,15 @@
+// Логотип оГород: значок «пин + росток» + слово, где «о» зелёное, «Город»
+// морковное — чтобы вылез спрятанный «город». См. дизайн-систему оГород.
+export function Wordmark({ withMark = true, markSize = 28 }: { withMark?: boolean; markSize?: number }) {
+  return (
+    <span className="wordmark">
+      {withMark && (
+        <img src="/assets/logo/ogorod-mark.svg" alt="" width={markSize} height={(markSize * 140) / 120} />
+      )}
+      <span>
+        <span className="wm-o">о</span>
+        <span className="wm-gorod">Город</span>
+      </span>
+    </span>
+  );
+}

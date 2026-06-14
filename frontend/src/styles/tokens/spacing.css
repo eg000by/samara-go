@@ -1,0 +1,67 @@
+/* ============================================================
+   SamaraGo · Spacing, radius, shadow, motion tokens
+   Soft, chunky, tactile — corners are generously rounded and
+   shadows are warm (tinted toward soil, never pure black).
+   ============================================================ */
+:root {
+  /* ---- Spacing scale (4px base) --------------------------- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  32px;
+  --space-8:  40px;
+  --space-9:  48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 96px;
+
+  /* ---- Radius (rounded, friendly) ------------------------- */
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-2xl:  36px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  /* ---- Borders -------------------------------------------- */
+  --border-w:       1.5px;
+  --border-w-bold:  2px;
+
+  /* ---- Shadows (warm, soil-tinted, soft) ------------------ */
+  --shadow-xs:  0 1px 2px rgba(74, 54, 36, 0.08);
+  --shadow-sm:  0 2px 6px rgba(74, 54, 36, 0.10);
+  --shadow-md:  0 6px 16px rgba(74, 54, 36, 0.12);
+  --shadow-lg:  0 14px 32px rgba(74, 54, 36, 0.16);
+  --shadow-xl:  0 24px 56px rgba(74, 54, 36, 0.20);
+  /* Chunky "stacked clay" button shadow — solid drop, tactile */
+  --shadow-clay:       0 4px 0 rgba(38, 107, 54, 0.55);
+  --shadow-clay-press: 0 2px 0 rgba(38, 107, 54, 0.55);
+  --shadow-clay-clay:       0 4px 0 rgba(132, 58, 36, 0.50);
+  /* Inner sink for sunken wells / inputs */
+  --shadow-inset: inset 0 2px 4px rgba(74, 54, 36, 0.10);
+  /* Focus ring */
+  --shadow-focus: 0 0 0 4px rgba(82, 176, 105, 0.35);
+
+  /* ---- Motion --------------------------------------------- */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);     /* @kind other */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);     /* @kind other */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);  /* @kind other */
+  --dur-fast:   120ms;  /* @kind other */
+  --dur-base:   200ms;  /* @kind other */
+  --dur-slow:   320ms;  /* @kind other */
+
+  /* ---- Layout / z ----------------------------------------- */
+  --tap-min:     44px;   /* minimum touch target */
+  --app-width:   390px;  /* iPhone design width */
+  --z-base:      0;       /* @kind other */
+  --z-sticky:    100;     /* @kind other */
+  --z-overlay:   200;     /* @kind other */
+  --z-modal:     300;     /* @kind other */
+  --z-toast:     400;     /* @kind other */
+}

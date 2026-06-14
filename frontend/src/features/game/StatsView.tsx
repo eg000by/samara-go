@@ -14,17 +14,13 @@ import {
 } from 'recharts';
 
 import { api } from '../../lib/api';
+import { RARITY_COLOR, RARITY_LABEL } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import type { Rarity, StatsResponse } from '../../types';
 import { fetchCatalog, fetchInventory } from './gameSlice';
 
-const RARITY_COLOR: Record<Rarity, string> = {
-  common: '#9ca3af',
-  uncommon: '#22c55e',
-  rare: '#3b82f6',
-  epic: '#a855f7',
-  legendary: '#f59e0b',
-};
+const COLLECT_FILL = '#6FBEDD'; // sky-500
+const HARVEST_FILL = '#3E9B4F'; // green-500
 
 export function StatsView() {
   const dispatch = useAppDispatch();
@@ -44,24 +40,29 @@ export function StatsView() {
     acc[rarity] = (acc[rarity] ?? 0) + item.qty;
     return acc;
   }, {});
-  const pieData = Object.entries(byRarity).map(([rarity, qty]) => ({ rarity, qty }));
+  const pieData = Object.entries(byRarity).map(([rarity, qty]) => ({
+    rarity,
+    label: RARITY_LABEL[rarity as Rarity] ?? rarity,
+    qty,
+  }));
 
   const dayData = (stats?.by_day ?? []).map((d) => ({ ...d, label: d.day.slice(5) }));
 
   return (
     <div className="stats-wrap">
+      <div className="eyebrow">Мой садовый дневник</div>
       <div className="stat-cards">
         <div className="stat-card">
           <span className="stat-num">{stats?.totals.collect ?? 0}</span>
-          <small className="muted">собрано семян</small>
+          <small>собрано семян</small>
         </div>
         <div className="stat-card">
           <span className="stat-num">{stats?.totals.plant ?? 0}</span>
-          <small className="muted">посажено</small>
+          <small>посажено</small>
         </div>
         <div className="stat-card">
           <span className="stat-num">{stats?.totals.harvest ?? 0}</span>
-          <small className="muted">урожаев</small>
+          <small>урожаев</small>
         </div>
       </div>
 
@@ -74,8 +75,8 @@ export function StatsView() {
             <YAxis allowDecimals={false} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="collect" name="Сбор" fill="#3b82f6" />
-            <Bar dataKey="harvest" name="Урожай" fill="#16a34a" />
+            <Bar dataKey="collect" name="Сбор" fill={COLLECT_FILL} radius={[6, 6, 0, 0]} />
+            <Bar dataKey="harvest" name="Урожай" fill={HARVEST_FILL} radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -87,7 +88,7 @@ export function StatsView() {
         ) : (
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
-              <Pie data={pieData} dataKey="qty" nameKey="rarity" outerRadius={90} label>
+              <Pie data={pieData} dataKey="qty" nameKey="label" outerRadius={90} label>
                 {pieData.map((d) => (
                   <Cell key={d.rarity} fill={RARITY_COLOR[d.rarity as Rarity] ?? '#999'} />
                 ))}

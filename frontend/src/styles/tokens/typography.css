@@ -1,0 +1,56 @@
+/* ============================================================
+   SamaraGo · Typography tokens
+   Quicksand (rounded geometric) for display & numbers.
+   Nunito (soft humanist) for body & UI.
+   ============================================================ */
+:root {
+  /* ---- Families ------------------------------------------- */
+  --font-display: 'Quicksand', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body:    'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* ---- Weights -------------------------------------------- */
+  --fw-regular:  400;  /* @kind other */
+  --fw-medium:   500;  /* @kind other */
+  --fw-semibold: 600;  /* @kind other */
+  --fw-bold:     700;  /* @kind other */
+  --fw-extra:    800;  /* @kind other */
+  --fw-black:    900;  /* @kind other */
+
+  /* ---- Type scale (mobile-first, 1.225 ratio) ------------- */
+  --text-2xs:  11px;
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-md:   18px;
+  --text-lg:   20px;
+  --text-xl:   24px;
+  --text-2xl:  30px;
+  --text-3xl:  38px;
+  --text-4xl:  48px;
+  --text-5xl:  60px;
+
+  /* ---- Line heights --------------------------------------- */
+  --leading-tight:   1.1;
+  --leading-snug:    1.25;
+  --leading-normal:  1.45;
+  --leading-relaxed: 1.65;
+
+  /* ---- Letter spacing ------------------------------------- */
+  --tracking-tight:  -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.02em;
+  --tracking-caps:   0.08em;   /* small uppercase eyebrows */
+
+  /* ========================================================
+     Semantic roles
+     ======================================================== */
+  --type-display:      var(--fw-bold) var(--text-4xl)/var(--leading-tight) var(--font-display);
+  --type-title:        var(--fw-bold) var(--text-2xl)/var(--leading-snug) var(--font-display);
+  --type-heading:      var(--fw-bold) var(--text-xl)/var(--leading-snug) var(--font-display);
+  --type-subheading:   var(--fw-semibold) var(--text-md)/var(--leading-snug) var(--font-display);
+  --type-body:         var(--fw-regular) var(--text-base)/var(--leading-normal) var(--font-body);
+  --type-body-strong:  var(--fw-bold) var(--text-base)/var(--leading-normal) var(--font-body);
+  --type-label:        var(--fw-bold) var(--text-sm)/var(--leading-snug) var(--font-body);
+  --type-caption:      var(--fw-semibold) var(--text-xs)/var(--leading-snug) var(--font-body);
+  --type-eyebrow:      var(--fw-bold) var(--text-2xs)/1 var(--font-body);
+}

@@ -1,0 +1,110 @@
+/* ============================================================
+   SamaraGo · Color tokens
+   A warm garden palette: leafy greens, terracotta clay, carrot
+   sun, soil-brown neutrals on cream paper. Mirrors the soft-3D
+   produce illustrations that anchor the brand.
+   ============================================================ */
+:root {
+  /* ---- Garden green (primary / hero) ---------------------- */
+  --green-50:  #EAF6EC;
+  --green-100: #D2ECD7;
+  --green-200: #A8DAB2;
+  --green-300: #79C68A;
+  --green-400: #52B069;
+  --green-500: #3E9B4F;   /* brand primary */
+  --green-600: #2F8341;
+  --green-700: #266B36;
+  --green-800: #1F5630;
+  --green-900: #163F23;
+
+  /* ---- Terracotta clay (secondary / soil) ----------------- */
+  --clay-50:  #FBEDE6;
+  --clay-100: #F5D9C9;
+  --clay-200: #E9B69C;
+  --clay-300: #DC9070;
+  --clay-400: #CE7350;
+  --clay-500: #C05F3C;    /* brand secondary */
+  --clay-600: #A44B2E;
+  --clay-700: #843A24;
+  --clay-800: #652D1D;
+  --clay-900: #492116;
+
+  /* ---- Carrot sun (accent / energy) ----------------------- */
+  --carrot-100: #FFE9CC;
+  --carrot-200: #FFD49B;
+  --carrot-300: #FFC078;
+  --carrot-400: #FBA94C;
+  --carrot-500: #F7931E;  /* accent */
+  --carrot-600: #E07A0C;
+  --carrot-700: #B85F06;
+
+  /* ---- Soil neutrals (warm browns: text & lines) ---------- */
+  --soil-900: #2C2018;    /* darkest ink */
+  --soil-800: #3A2A1E;
+  --soil-700: #5A4636;
+  --soil-600: #756150;
+  --soil-500: #8A7765;
+  --soil-400: #A89684;
+  --soil-300: #C8BAA9;
+  --soil-200: #E3D8C8;
+  --soil-100: #F0E8DB;
+
+  /* ---- Cream paper surfaces ------------------------------- */
+  --cream:      #FBF6EC;  /* app background */
+  --cream-deep: #F4ECD9;  /* sunken / alt background */
+  --paper:      #FFFFFF;  /* cards */
+
+  /* ---- Sky (map water, info, cool counterpoint) ----------- */
+  --sky-100: #E4F3F9;
+  --sky-300: #BFE3F0;
+  --sky-500: #6FBEDD;
+  --sky-700: #3E97BC;
+
+  /* ---- Berry (hearts, likes, rare seeds) ------------------ */
+  --berry-300: #F08A8A;
+  --berry-500: #E2553D;
+  --berry-600: #C73E2C;
+
+  /* ========================================================
+     Semantic aliases — reference these in components
+     ======================================================== */
+  --color-bg:            var(--cream);
+  --color-bg-sunken:     var(--cream-deep);
+  --surface-card:        var(--paper);
+  --surface-raised:      var(--paper);
+  --surface-inverse:     var(--green-800);
+
+  --text-primary:        var(--soil-900);
+  --text-secondary:      var(--soil-600);
+  --text-muted:          var(--soil-500);
+  --text-on-brand:       #FFFFFF;
+  --text-on-cream:       var(--soil-800);
+  --text-link:           var(--green-600);
+
+  --brand-primary:       var(--green-500);
+  --brand-primary-press: var(--green-600);
+  --brand-secondary:     var(--clay-500);
+  --brand-accent:        var(--carrot-500);
+
+  --border-soft:         var(--soil-200);
+  --border-strong:       var(--soil-300);
+  --border-brand:        var(--green-200);
+  --ring-focus:          var(--green-400);
+
+  /* Status */
+  --success:   var(--green-500);
+  --success-bg: var(--green-50);
+  --warning:   var(--carrot-500);
+  --warning-bg: var(--carrot-100);
+  --danger:    var(--berry-500);
+  --danger-bg: #FBE7E2;
+  --info:      var(--sky-500);
+  --info-bg:   var(--sky-100);
+
+  /* Rarity tiers (seeds) */
+  --rarity-common:    var(--soil-400);
+  --rarity-uncommon:  var(--green-500);
+  --rarity-rare:      var(--sky-500);
+  --rarity-epic:      #9B6FD6;
+  --rarity-legendary: var(--carrot-500);
+}

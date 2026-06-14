@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Wordmark } from '../components/Wordmark';
+import { rarityStyle, seedImage } from '../lib/seeds';
 import { supabase } from '../lib/supabase';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { FieldView } from './game/FieldView';
@@ -8,6 +10,12 @@ import { StatsView } from './game/StatsView';
 import { clearToast } from './game/gameSlice';
 
 type Tab = 'map' | 'field' | 'stats';
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'map', label: 'Карта' },
+  { key: 'field', label: 'Поле' },
+  { key: 'stats', label: 'Дневник' },
+];
 
 export function Home() {
   const dispatch = useAppDispatch();
@@ -27,27 +35,30 @@ export function Home() {
   return (
     <div className="page">
       <header className="topbar">
-        <strong>🌱 Piter-Go</strong>
-        <span className="muted">{profile?.username ?? 'игрок'}</span>
-        <span className="coins">🪙 {profile?.currency ?? 0}</span>
+        <Wordmark />
+        <div className="who">
+          <b>{profile?.username ?? 'Садовод'}</b>
+          <small>играет</small>
+        </div>
+        <span className="coins">🪙 {(profile?.currency ?? 0).toLocaleString('ru-RU')}</span>
         <button className="link" onClick={() => void supabase.auth.signOut()}>
           выйти
         </button>
       </header>
 
       <nav className="tabs">
-        <button className={tab === 'map' ? 'active' : ''} onClick={() => setTab('map')}>
-          🗺️ Карта
-        </button>
-        <button className={tab === 'field' ? 'active' : ''} onClick={() => setTab('field')}>
-          🌾 Поле
-        </button>
-        <button className={tab === 'stats' ? 'active' : ''} onClick={() => setTab('stats')}>
-          📊 Статистика
-        </button>
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            className={tab === t.key ? 'active' : ''}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
       </nav>
 
-      <main className="content game-layout">
+      <main className="game-layout">
         {tab === 'map' && <MapView />}
         {tab === 'field' && <FieldView />}
         {tab === 'stats' && <StatsView />}
@@ -55,13 +66,16 @@ export function Home() {
         <aside className="inventory">
           <h3>Инвентарь</h3>
           {inventory.length === 0 ? (
-            <p className="muted">Пусто — собери семена на карте</p>
+            <p className="muted">Пусто — собери семена на карте 🌱</p>
           ) : (
             <ul className="inv-list">
               {inventory.map((i) => (
                 <li key={i.seed_type}>
-                  <span>{i.name}</span>
-                  <b>×{i.qty}</b>
+                  <span className="seed-thumb" style={rarityStyle(i.rarity)}>
+                    <img src={seedImage(i.seed_type)} alt="" />
+                  </span>
+                  <span className="inv-name">{i.name}</span>
+                  <span className="inv-qty">×{i.qty}</span>
                 </li>
               ))}
             </ul>

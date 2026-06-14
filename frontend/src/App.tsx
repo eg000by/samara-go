@@ -24,7 +24,7 @@ export default function App() {
     return () => sub.subscription.unsubscribe();
   }, [dispatch]);
 
-  if (status === 'loading') return <div className="centered muted">Загрузка…</div>;
+  if (status === 'loading') return <div className="centered muted">Загрузка… 🌱</div>;
   if (status === 'signedOut') return <Login />;
   return <Home />;
 }

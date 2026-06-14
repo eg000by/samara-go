@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 
+import { Wordmark } from '../../components/Wordmark';
 import { supabase } from '../../lib/supabase';
 
 type Mode = 'in' | 'up';
@@ -37,13 +38,15 @@ export function Login() {
 
   return (
     <div className="centered">
-      <form className="card" onSubmit={submit}>
-        <h1>🌱 Piter-Go</h1>
-        <p className="muted">Ферма по Санкт-Петербургу</p>
+      <form className="login-card" onSubmit={submit}>
+        <div className="login-brand">
+          <Wordmark markSize={44} />
+          <p className="tagline">собери весь город — семечко за семечком</p>
+        </div>
 
         <input
           type="email"
-          placeholder="email"
+          placeholder="почта"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -57,7 +60,7 @@ export function Login() {
           required
         />
 
-        <button type="submit" disabled={busy}>
+        <button type="submit" className="block" disabled={busy}>
           {busy ? '…' : mode === 'in' ? 'Войти' : 'Зарегистрироваться'}
         </button>
 
