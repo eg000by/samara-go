@@ -1,15 +1,6 @@
-import 'leaflet/dist/leaflet.css';
-import { useEffect, useState } from 'react';
-import {
-  AttributionControl,
-  Circle,
-  CircleMarker,
-  MapContainer,
-  Popup,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from 'react-leaflet';
+import { useEffect, useRef, useState } from 'react';
+import type ymaps from 'yandex-maps';
+import { Circle, Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 
 import { RARITY_COLOR, RARITY_LABEL, rarityStyle, seedImage } from '../../lib/seeds';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -19,32 +10,17 @@ import { collectSeed, fetchInventory, fetchMap } from './gameSlice';
 // Дворцовая площадь — центр карты и точка по умолчанию.
 const CENTER: LatLon = { lat: 59.9398, lon: 30.3146 };
 const COLLECT_RADIUS_M = 50;
-
 const GREEN = '#3E9B4F'; // brand-primary — игрок и радиус сбора
 
-// Клик по карте «перемещает» игрока (демо: ревьюер не в Питере физически).
-function ClickToMove({ onMove }: { onMove: (p: LatLon) => void }) {
-  useMapEvents({
-    click(e) {
-      onMove({ lat: e.latlng.lat, lon: e.latlng.lng });
-    },
-  });
-  return null;
-}
-
-// Держим игрока в центре вьюпорта при смене позиции (например, по GPS).
-function Recenter({ pos }: { pos: LatLon }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView([pos.lat, pos.lon]);
-  }, [map, pos]);
-  return null;
-}
+// Ключ JavaScript API Яндекс.Карт (публичный, привязывается к домену в кабинете).
+const APIKEY = import.meta.env.VITE_YANDEX_MAPS_API_KEY ?? '';
 
 export function MapView() {
   const dispatch = useAppDispatch();
   const seeds = useAppSelector((s) => s.game.seeds);
   const [pos, setPos] = useState<LatLon>(CENTER);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const mapRef = useRef<ymaps.Map | null>(null);
 
   useEffect(() => {
     void dispatch(fetchInventory());
@@ -57,10 +33,32 @@ export function MapView() {
     return () => clearInterval(t);
   }, [dispatch, pos]);
 
+  // рецентрируем карту при смене позиции игрока (не на каждый ререндер)
+  useEffect(() => {
+    mapRef.current?.setCenter([pos.lat, pos.lon]);
+  }, [pos]);
+
   function useGps() {
     navigator.geolocation.getCurrentPosition(
       (p) => setPos({ lat: p.coords.latitude, lon: p.coords.longitude }),
       (err) => alert(`Геолокация недоступна: ${err.message}`),
+    );
+  }
+
+  // выбранное семя берём из актуального списка — чтобы can_collect/dist обновлялись
+  const selected = seeds.find((s) => s.id === selectedId) ?? null;
+
+  if (!APIKEY) {
+    return (
+      <div className="map-wrap">
+        <div className="map-nokey">
+          <b>Карта Яндекса не настроена</b>
+          <p className="muted">
+            Добавь ключ JavaScript API в <code>VITE_YANDEX_MAPS_API_KEY</code> (frontend/.env) и
+            пересобери фронтенд.
+          </p>
+        </div>
+      </div>
     );
   }
 
@@ -74,65 +72,74 @@ export function MapView() {
         <span className="hint">клик по карте — переместиться (демо)</span>
       </div>
 
-      <MapContainer
-        center={[pos.lat, pos.lon]}
-        zoom={15}
-        className="leaflet"
-        attributionControl={false}
-      >
-        {/* prefix={false} убирает «Leaflet 🇺🇦» из подписи; атрибуцию OSM оставляем */}
-        <AttributionControl prefix={false} />
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <ClickToMove onMove={setPos} />
-        <Recenter pos={pos} />
-
-        {/* радиус сбора и сам игрок */}
-        <Circle
-          center={[pos.lat, pos.lon]}
-          radius={COLLECT_RADIUS_M}
-          pathOptions={{ color: GREEN, weight: 1.5, fillColor: GREEN, fillOpacity: 0.08 }}
-        />
-        <CircleMarker
-          center={[pos.lat, pos.lon]}
-          radius={8}
-          pathOptions={{ color: '#fff', weight: 3, fillColor: GREEN, fillOpacity: 1 }}
-        />
-
-        {seeds.map((seed) => (
-          <CircleMarker
-            key={seed.id}
-            center={[seed.lat, seed.lon]}
-            radius={8}
-            pathOptions={{
-              color: '#fff',
-              weight: 2,
-              fillColor: RARITY_COLOR[seed.rarity],
-              fillOpacity: 0.95,
+      <div className="leaflet">
+        <YMaps query={{ apikey: APIKEY, lang: 'ru_RU' }}>
+          <Map
+            defaultState={{ center: [pos.lat, pos.lon], zoom: 15 }}
+            width="100%"
+            height="100%"
+            instanceRef={(ref) => {
+              mapRef.current = ref;
+            }}
+            onClick={(e: ymaps.IEvent) => {
+              const c = e.get('coords') as [number, number] | undefined;
+              if (c) {
+                setPos({ lat: c[0], lon: c[1] });
+                setSelectedId(null);
+              }
             }}
           >
-            <Popup>
-              <div className="popup-seed">
-                <span className="seed-thumb" style={rarityStyle(seed.rarity)}>
-                  <img src={seedImage(seed.seed_type)} alt="" />
-                </span>
-                <span className="popup-name">{seed.name}</span>
-                <span className="popup-meta">
-                  {RARITY_LABEL[seed.rarity]} · 📍 {Math.round(seed.dist_m)} м
-                </span>
-                <button
-                  disabled={!seed.can_collect}
-                  onClick={() => void dispatch(collectSeed({ id: seed.id, pos }))}
-                >
-                  {seed.can_collect ? '🌱 Собрать' : 'Слишком далеко'}
-                </button>
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
-      </MapContainer>
+            {/* радиус сбора */}
+            <Circle
+              geometry={[[pos.lat, pos.lon], COLLECT_RADIUS_M]}
+              options={{
+                fillColor: `${GREEN}1F`,
+                strokeColor: GREEN,
+                strokeWidth: 2,
+                interactivityModel: 'default#transparent',
+              }}
+            />
+            {/* игрок */}
+            <Placemark
+              geometry={[pos.lat, pos.lon]}
+              options={{ preset: 'islands#circleIcon', iconColor: GREEN }}
+            />
+            {/* семена — цвет по редкости */}
+            {seeds.map((seed) => (
+              <Placemark
+                key={seed.id}
+                geometry={[seed.lat, seed.lon]}
+                options={{ preset: 'islands#circleDotIcon', iconColor: RARITY_COLOR[seed.rarity] }}
+                onClick={() => setSelectedId(seed.id)}
+              />
+            ))}
+          </Map>
+        </YMaps>
+      </div>
+
+      {/* карточка выбранного семени со сбором */}
+      {selected && (
+        <div className="map-seedcard">
+          <span className="seed-thumb" style={rarityStyle(selected.rarity)}>
+            <img src={seedImage(selected.seed_type)} alt="" />
+          </span>
+          <div className="msc-info">
+            <b>{selected.name}</b>
+            <small className="popup-meta">
+              {RARITY_LABEL[selected.rarity]} · 📍 {Math.round(selected.dist_m)} м
+            </small>
+          </div>
+          <button
+            disabled={!selected.can_collect}
+            onClick={() => {
+              void dispatch(collectSeed({ id: selected.id, pos }));
+              setSelectedId(null);
+            }}
+          >
+            {selected.can_collect ? '🌱 Собрать' : 'Далеко'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
