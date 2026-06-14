@@ -4,12 +4,11 @@ import type { ReactNode } from 'react';
 import { Avatar } from '../components/Avatar';
 import { BookIcon, CoinIcon, FieldIcon, PinIcon } from '../components/icons';
 import { Wordmark } from '../components/Wordmark';
-import { supabase } from '../lib/supabase';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { DiaryView } from './game/DiaryView';
 import { FieldView } from './game/FieldView';
 import { InventoryRail } from './game/InventoryRail';
 import { MapView } from './game/MapView';
-import { StatsView } from './game/StatsView';
 import { clearToast } from './game/gameSlice';
 
 type Tab = 'map' | 'field' | 'diary';
@@ -57,14 +56,7 @@ export function Home() {
             <InventoryRail />
           </>
         )}
-        {tab === 'diary' && (
-          <div className="screen-pad">
-            <StatsView />
-            <button className="soft block logout-btn" onClick={() => void supabase.auth.signOut()}>
-              Выйти
-            </button>
-          </div>
-        )}
+        {tab === 'diary' && <DiaryView />}
       </div>
 
       <nav className="bottom-nav">

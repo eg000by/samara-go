@@ -75,6 +75,8 @@ button.soft {
 }
 button.soft:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 button.accent { background: var(--brand-accent); color: var(--soil-900); box-shadow: 0 4px 0 rgba(184, 95, 6, 0.45); }
+button.outline { background: transparent; color: var(--text-primary); box-shadow: none; border: var(--border-w-bold) solid var(--border-strong); }
+button.outline:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 button.link {
   height: auto;
   padding: var(--space-1) var(--space-2);
@@ -417,19 +419,72 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 @keyframes pop { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .picker, .toast, .map-seedcard { will-change: transform, opacity; }
 
-/* ============================================================
-   Stats / Дневник
-   ============================================================ */
-.stats-wrap { display: flex; flex-direction: column; gap: var(--space-4); }
-.stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
-.stat-card {
-  background: var(--surface-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
-  padding: var(--space-4); text-align: center; display: flex; flex-direction: column; gap: var(--space-1);
-}
-.stat-num { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--text-2xl); color: var(--green-600); line-height: 1; font-variant-numeric: tabular-nums; }
-.stat-card small { color: var(--text-muted); font-weight: var(--fw-bold); font-size: var(--text-xs); }
+/* shared progress bar (sunken track, green fill) */
+.bar { width: 100%; height: 10px; background: var(--color-bg-sunken); border-radius: var(--radius-pill); box-shadow: var(--shadow-inset); overflow: hidden; }
+.bar-fill { height: 100%; background: var(--brand-primary); border-radius: var(--radius-pill); transition: width var(--dur-slow) var(--ease-out); }
 .chart-box { background: var(--surface-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-5); }
 .chart-box h4 { font: var(--type-subheading); margin-bottom: var(--space-4); }
+
+/* ============================================================
+   Дневник — collection journal
+   ============================================================ */
+.diary { padding: var(--space-5) 0 var(--space-4); }
+.diary-head { padding: 0 var(--space-4); }
+.diary-title { display: flex; align-items: baseline; justify-content: space-between; margin-top: var(--space-1); }
+.diary-title h2 { font: var(--type-title); letter-spacing: var(--tracking-tight); }
+.diary-count { font: var(--type-label); color: var(--green-600); white-space: nowrap; }
+.diary-bar { margin-top: var(--space-3); }
+
+.diary-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); padding: var(--space-4) var(--space-4) 0; }
+.diary-stat { background: var(--color-bg-sunken); box-shadow: var(--shadow-inset); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; }
+.diary-stat-num { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--text-xl); color: var(--soil-900); font-variant-numeric: tabular-nums; }
+.diary-stat-label { font: var(--type-caption); color: var(--text-muted); margin-top: 2px; }
+
+.diary-chips { display: flex; gap: var(--space-2); overflow-x: auto; padding: var(--space-4) var(--space-4) 0; }
+.diary-chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; height: auto; gap: 6px; padding: 7px 13px;
+  background: var(--paper); color: var(--soil-600); box-shadow: var(--shadow-xs);
+  border: none; border-radius: var(--radius-pill); font-family: var(--font-display); font-weight: var(--fw-bold); font-size: 13px;
+}
+.chip:hover:not(:disabled) { filter: none; }
+.chip:active:not(:disabled) { transform: none; box-shadow: var(--shadow-xs); }
+.chip.on { background: var(--green-500); color: #fff; box-shadow: none; }
+.chip-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.diary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); padding: var(--space-3) var(--space-4) 0; }
+.diary-tile { background: var(--surface-card); border: var(--border-w) solid var(--border-soft); border-radius: var(--radius-sm); padding: 12px 8px 10px; text-align: center; }
+.diary-art { position: relative; display: flex; justify-content: center; }
+.diary-circle {
+  width: 72px; height: 72px; border-radius: var(--radius-circle);
+  background: var(--cream); border: 2.5px solid var(--rarity, var(--soil-200));
+  display: flex; align-items: center; justify-content: center;
+}
+.diary-circle img { width: 50px; height: 50px; object-fit: contain; }
+.diary-tile.locked .diary-circle { background: var(--cream-deep); border-color: var(--soil-200); }
+.diary-tile.locked .diary-circle img { filter: brightness(0) saturate(0); opacity: 0.2; }
+.diary-badge {
+  position: absolute; top: -3px; left: calc(50% + 14px); min-width: 24px; height: 22px; padding: 0 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--green-500); color: #fff; border: 2px solid var(--paper); border-radius: 999px;
+  font-family: var(--font-display); font-weight: var(--fw-bold); font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.diary-lock {
+  position: absolute; top: -3px; left: calc(50% + 16px); width: 22px; height: 22px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--soil-300); color: #fff; border: 2px solid var(--paper); border-radius: 999px;
+}
+.diary-name { font: var(--type-caption); font-size: 12.5px; font-weight: var(--fw-extra); color: var(--soil-900); margin-top: 8px; }
+.diary-tile.locked .diary-name { color: var(--soil-400); }
+.diary-rarity { font-family: var(--font-body); font-weight: var(--fw-extra); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 3px; }
+
+.diary-chart { margin: var(--space-5) var(--space-4) 0; padding: var(--space-4); }
+.diary-chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+.diary-chart-head h4 { font: var(--type-subheading); margin: 0; }
+.diary-legend { display: flex; gap: var(--space-3); }
+.diary-legend span { display: inline-flex; align-items: center; gap: 5px; font: var(--type-caption); color: var(--text-muted); }
+.diary-legend i { width: 9px; height: 9px; border-radius: 3px; }
+.diary-logout { padding: var(--space-5) var(--space-4) 0; }
 
 /* ============================================================
    Toast

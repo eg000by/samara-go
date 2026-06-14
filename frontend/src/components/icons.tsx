@@ -72,6 +72,14 @@ export const LockIcon = (p: IcoProps) => (
   </Ico>
 );
 
+export const LogoutIcon = (p: IcoProps) => (
+  <Ico {...p}>
+    <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" />
+    <path d="M10 17l-5-5 5-5" />
+    <path d="M5 12h12" />
+  </Ico>
+);
+
 // Монета — заливочная (карротовые тона), не контурная.
 export function CoinIcon({ size = 18 }: { size?: number }) {
   return (
