@@ -394,9 +394,12 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
   --poster-color: transparent; background: transparent;
   pointer-events: none;
 }
-/* кольцо-«ты здесь» под персонажем (на уровне гео-точки) */
+/* кольцо-«ты здесь» в ногах персонажа (у самой гео-точки, ниже модели) */
 .ya-player3d .ya-player-halo {
-  top: auto; bottom: 4px; width: 56px; height: 56px;
+  top: auto; left: 50%; bottom: -10px;
+  width: 48px; height: 48px;
+  transform: translateX(-50%);
+  animation: og-pulse-ground 2.8s ease-out infinite;
 }
 @keyframes og-bob {
   0%, 100% { transform: translate(-50%, -100%) translateY(0); }
@@ -405,6 +408,12 @@ input:focus { outline: none; border-color: var(--green-400); box-shadow: var(--s
 @keyframes og-pulse {
   0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.7; }
   70% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+  100% { opacity: 0; }
+}
+/* пульсация-«тень» в ногах 3D-персонажа: только по X центрируем */
+@keyframes og-pulse-ground {
+  0% { transform: translateX(-50%) scale(0.5); opacity: 0.7; }
+  70% { transform: translateX(-50%) scale(1.6); opacity: 0; }
   100% { opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
