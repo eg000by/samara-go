@@ -163,6 +163,25 @@ async def inventory(
     ]
 
 
+@router.get("/collection", response_model=list[str])
+async def collection(
+    user: CurrentUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> list[str]:
+    """Типы семян, которые игрок когда-либо собирал. Источник — события
+    collect (append-only): в дневнике такие виды остаются открытыми, даже
+    если в инвентаре их уже нет (потратил/посадил)."""
+    rows = (await session.execute(
+        text("""
+            select distinct payload->>'seed_type' as seed_type
+            from events
+            where user_id = :u and type = 'collect' and payload ? 'seed_type'
+        """),
+        {"u": str(user.id)},
+    )).scalars().all()
+    return [s for s in rows if s]
+
+
 @router.get("/field", response_model=list[FieldCellOut])
 async def field(
     user: CurrentUser = Depends(get_current_user),

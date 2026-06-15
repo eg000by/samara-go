@@ -36,18 +36,21 @@ export function DiaryView() {
   const catalog = useAppSelector((s) => s.game.catalog);
   const inventory = useAppSelector((s) => s.game.inventory);
   const [stats, setStats] = useState<StatsResponse | null>(null);
+  const [discovered, setDiscovered] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<'all' | Rarity>('all');
 
   useEffect(() => {
     void dispatch(fetchCatalog());
     void dispatch(fetchInventory());
     api.stats().then(setStats).catch(console.error);
+    // виды, собранные когда-либо — остаются открытыми даже при пустом инвентаре
+    api.collection().then((list) => setDiscovered(new Set(list))).catch(console.error);
   }, [dispatch]);
 
   const qtyByType: Record<string, number> = Object.fromEntries(inventory.map((i) => [i.seed_type, i.qty]));
   const entries = Object.values(catalog);
   const total = entries.length;
-  const collected = entries.filter((e) => (qtyByType[e.seed_type] ?? 0) > 0).length;
+  const collected = entries.filter((e) => discovered.has(e.seed_type)).length;
   const shown = entries.filter((e) => filter === 'all' || e.rarity === filter);
 
   const totals = stats?.totals ?? { collect: 0, plant: 0, harvest: 0 };
@@ -95,20 +98,20 @@ export function DiaryView() {
       <div className="diary-grid">
         {shown.map((e) => {
           const qty = qtyByType[e.seed_type] ?? 0;
-          const have = qty > 0;
+          const have = discovered.has(e.seed_type); // собирал когда-либо
           return (
             <div key={e.seed_type} className={`diary-tile ${have ? '' : 'locked'}`}>
               <div className="diary-art">
                 <span className="diary-circle" style={have ? rarityStyle(e.rarity) : undefined}>
                   <img src={seedImage(e.seed_type)} alt="" />
                 </span>
-                {have ? (
-                  <span className="diary-badge">×{qty}</span>
-                ) : (
+                {!have ? (
                   <span className="diary-lock">
                     <LockIcon size={12} />
                   </span>
-                )}
+                ) : qty > 0 ? (
+                  <span className="diary-badge">×{qty}</span>
+                ) : null}
               </div>
               <div className="diary-name">{have ? e.name : '???'}</div>
               <div

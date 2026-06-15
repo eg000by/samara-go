@@ -64,6 +64,8 @@ export const api = {
       body: JSON.stringify(pos),
     }),
   inventory: () => request<InventoryItem[]>('/inventory'),
+  // типы семян, собранные когда-либо (для дневника — остаются открытыми)
+  collection: () => request<string[]>('/collection'),
   field: () => request<FieldCell[]>('/field'),
   plant: (cellIndex: number, seedType: string) =>
     request<FieldCell>('/plant', {
